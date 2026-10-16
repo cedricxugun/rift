@@ -1,4 +1,4 @@
-import { castleFrame, castleStage, CASTLE_LAYOUTS, weaponFrame, weaponAtlas, weaponMountCount } from './castle-appearance.js';
+import { castleFrame, castleStage, CASTLE_LAYOUTS, weaponFrame, weaponAtlas, weaponMountCount,equippedArt } from './castle-appearance.js';
 import { weaponMount } from './weapon-rig.js';
 import {activeCombos,COMBOS} from './data.js';
 
@@ -148,7 +148,7 @@ export class PaintedArt {
     this.heroPose = { muzzles: [{ x: 0, y: 0 }], core: { x: 0, y: 0 }, atlasIndex: 0, atlasName: 'characters' };
     this.muzzlePoints = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
 
-    for (const name of ['characters', 'props', 'effects', ...['walk','arsenal','travelers','routes','cores','castles','equipment','skillEffects','allies','duels'].filter(name=>images[name])]) {
+    for (const name of ['characters', 'props', 'effects', ...['walk','arsenal','travelers','routes','cores','castles','equipment','skillEffects','allies','duels','tactics'].filter(name=>images[name])]) {
       const image = images[name];
       const width = image?.naturalWidth || image?.width || 0;
       const height = image?.naturalHeight || image?.height || 0;
@@ -173,7 +173,7 @@ export class PaintedArt {
         rowEdges = atlasRowEdges(coverage, 0.09);
       }
       const columnRowEdges = Array.from({ length: 4 }, () => rowEdges);
-      if (pixels && ['characters','props','arsenal','travelers','routes','cores','castles','equipment','allies','duels'].includes(name)) {
+      if (pixels && ['characters','props','arsenal','travelers','routes','cores','castles','equipment','allies','duels','tactics'].includes(name)) {
         for (let col = 0; col < 4; col += 1) {
           const coverage = new Uint16Array(height);
           const columnLeft = Math.floor((col * width) / SHEET_SIZE);
@@ -415,7 +415,7 @@ export class PaintedArt {
   drawModule(ctx,index,x,y,width,angle=0,flash=0,atlas='equipment'){
     const frame=this.frames[atlas]?.[index];if(!frame)return;
     const gridWidth=this.sheets[atlas].width/4,gridHeight=this.sheets[atlas].height/4;
-    const directional=atlas==='equipment'&&index<6,rotor=atlas==='equipment'&&index>=6&&index<=8;
+    const directional=atlas==='equipment'&&index<6||atlas==='tactics'&&[7,12,13].includes(index),rotor=atlas==='equipment'&&index>=6&&index<=8||atlas==='tactics'&&index===6;
     const pivot=directional?[.28,.52]:rotor?[.5,.5]:[.5,.87];
     const scale=width/gridWidth;
     const cx=(frame.sx+frame.sw*.5-(index%4+pivot[0])*gridWidth)*scale;
@@ -447,14 +447,14 @@ export class PaintedArt {
     }
     for(const {weapon,rank,flash,angle,mount,base,v} of mounts){
       const displayRank=weapon==='summon'&&player.core==='legionHeart'?Math.max(4,rank):rank;
-      const index=weaponFrame(weapon,displayRank,player.path),width=mount.moduleWidth*scale;
+      const look=equippedArt(player,weapon),index=look.atlas==='tactics'?look.frame:weaponFrame(weapon,displayRank,player.path),width=mount.moduleWidth*scale;
       this.drawModule(ctx,15,base.x,base.y+width*.04,width*.73);
-      if(weapon==='cannon'||weapon==='ice'){
+      if(weapon==='cannon'||weapon==='ice'&&!player.perks?.mirrorWall||weapon==='lightning'&&player.perks?.stormLance){
         const tip=project(mount.tipX,mount.tipZ,mount.height),a=Math.atan2(tip.y-v.y,tip.x-v.x);
         const projectedWidth=Math.hypot(tip.x-v.x,tip.y-v.y)/.58;
-        this.drawModule(ctx,index,v.x-Math.cos(a)*flash*width*.07,v.y-Math.sin(a)*flash*width*.07,projectedWidth,a,flash);
-      }else if(weapon==='wind')this.drawModule(ctx,index,v.x,v.y,width,reducedMotion?0:time*(rank>=3?3.8:2),flash);
-      else this.drawModule(ctx,index,base.x,base.y,width,weapon==='summon'&&flash?Math.sin(flash*14)*.06:0,flash,weaponAtlas(weapon));
+        this.drawModule(ctx,index,v.x-Math.cos(a)*flash*width*.07,v.y-Math.sin(a)*flash*width*.07,projectedWidth,a,flash,look.atlas);
+      }else if(weapon==='wind')this.drawModule(ctx,index,v.x,v.y,width,reducedMotion?0:time*(rank>=3?3.8:2),flash,look.atlas);
+      else this.drawModule(ctx,index,base.x,base.y,width,weapon==='summon'&&flash?Math.sin(flash*14)*.06:0,flash,look.atlas);
     }
     if(player.path==='frost_aegis'){
       const v=project(player.x-player.visualRadius*1.2,player.z-.1,player.visualRadius*.25);
@@ -462,8 +462,8 @@ export class PaintedArt {
     }
   }
 
-  drawCityPreview(ctx,route,level,modules,x,y,radius,time=0,path=null,core=null){
-    const player={x:0,z:0,route,level,modules,weaponOrder:Object.keys(modules),radius,visualRadius:radius,aim:0,path,core};
+  drawCityPreview(ctx,route,level,modules,x,y,radius,time=0,path=null,core=null,perks={}){
+    const player={x:0,z:0,route,level,modules,weaponOrder:Object.keys(modules),radius,visualRadius:radius,aim:0,path,core,perks};
     const project=(wx,wz,h=0)=>({x:x+wx,y:y+wz*.62-h});
     const base=route==='furnace'?4:route==='frost'?8:0;
     this.drawPortal(ctx,x,y,radius,time);

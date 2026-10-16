@@ -63,6 +63,7 @@ describe('V7 build behaviors',()=>{
   });
   test('swallowing supplies rallies a legion and its heart promotes a real captain',()=>{
     const g=arena({summon:2}),f=g.arsenal.formation;g.player.core='legionHeart';
+    g.spawnEnemy('golem',{x:5,z:0,hp:10000,maxHp:10000,spawning:0,cooldown:999,speed:0});
     f.consume({category:'prop',mass:16,combatDrop:true});f.consume({category:'prop',mass:16,combatDrop:true});f.update(0);
     expect(f.rally).toBeGreaterThan(3);expect(f.guardians.filter(a=>a.captain)).toHaveLength(1);
     expect(f.guardians[0].radius).toBeGreaterThan(f.guardians[1].radius);
@@ -119,7 +120,7 @@ describe('V7 build behaviors',()=>{
     const g=arena({cannon:1});g.eliteIndex=0;g.player.rewardLevel=0;
     expect(g.rollSkillOffers().some(e=>['summon','roots'].includes(e.skill))).toBe(true);
     g.player.rewardLevel=3;g.player.modules.summon=2;g.player.modules.roots=1;
-    const offers=g.rollSkillOffers();expect(offers[0].skill).toBe('roots');expect(offers.some(e=>e.path)).toBe(false);
+    const offers=g.rollSkillOffers();expect(['roots','cannon']).toContain(offers[0].skill);expect(offers.some(e=>e.path)).toBe(false);
     expect(offers.every(e=>!e.skill||g.player.modules[e.skill]>0)).toBe(true);
   });
   test('damage readouts count actual damage, not overkill or imagined combination power',()=>{

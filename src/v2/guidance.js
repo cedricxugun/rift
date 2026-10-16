@@ -14,6 +14,8 @@ export function navigationGoal(game){
   }
   const core=alive.find(e=>e.category==='core');
   if(core)return{entity:core,label:'Absorb the core',color:'#8561aa',reward:true};
+  const blueprint=alive.find(e=>e.category==='blueprint');
+  if(blueprint)return{entity:blueprint,label:'Tactical blueprint',color:'#4c8eaa',reward:true};
   const ruin=alive.find(e=>e.category==='shrine');
   if(ruin)return{entity:ruin,label:'Skill ruin',color:'#a06b32',reward:true};
   const special=boss||alive.find(e=>e.elite);

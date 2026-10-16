@@ -10,6 +10,7 @@ import { purchaseModification } from './workshop.js';
 import { ROUTES, BRANCHES, MASTERY_NODES, EVOLUTION_ASPECTS } from './skill-graph.js';
 import { OPPORTUNITIES } from './expedition.js';
 import { CASTLE_STAGES, castleStage } from './castle-appearance.js';
+import {PACKS} from './blueprints.js';
 import characters from '../../assets/characters.webp';
 import props from '../../assets/props.webp';
 import effects from '../../assets/effects.webp';
@@ -24,6 +25,7 @@ import equipment from '../../assets/weapon-modules-v65.webp';
 import skillEffects from '../../assets/skill-effects-v65.webp';
 import allies from '../../assets/allies-v7.webp';
 import duels from '../../assets/duels-v7.webp';
+import tactics from '../../assets/tactics-v8-mechanical.webp';
 
 async function boot(){
   let saved={};try{saved=JSON.parse(localStorage.getItem('riftbound-v2')||'{}');}catch{}
@@ -35,7 +37,7 @@ async function boot(){
   document.body.classList.toggle('reduced-motion',settings.reducedMotion);
   const loading=document.getElementById('loading');loading.querySelector('p').textContent=t('Preparing the illustrated world...');
   let loaded=0;const images={};
-  const imageSources={characters,props,effects,terrain,walk,arsenal,travelers,routes,cores,castles,equipment,skillEffects,allies,duels};
+  const imageSources={characters,props,effects,terrain,walk,arsenal,travelers,routes,cores,castles,equipment,skillEffects,allies,duels,tactics};
   await Promise.all(Object.entries(imageSources).map(([key,src])=>new Promise((resolve,reject)=>{
     const image=new Image();image.onload=()=>{images[key]=image;loaded++;loading.querySelector('.load-track i').style.width=`${loaded/Object.keys(imageSources).length*100}%`;resolve();};image.onerror=()=>reject(new Error('Asset decode failed: '+key));image.src=src;
   })));
@@ -70,6 +72,8 @@ async function boot(){
       if(event.type==='route-charge')audio.play('routeCharge',.7);
       if(event.type==='guardian-block')audio.play('guardianBlock',1);
       if(event.type==='guardian-strike')audio.play('impact',.4);
+      if(event.type==='pack')ui.announce(PACKS[event.id].name,PACKS[event.id].tip);
+      if(['lance-cast','mine-burst','plasma-burst','turret-shot'].includes(event.type))audio.play(event.type==='lance-cast'?'lightning':'impact',.6);
       if(event.type==='guardian-arrive')audio.play('routeCharge',.75);
       if(event.type==='legion-rally')audio.play('branchChoice',.6);
       if(event.type==='garden-bloom')audio.play(event.burning?'impact':event.frost?'freeze':'wind',.65);

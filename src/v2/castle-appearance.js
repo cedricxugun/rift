@@ -1,3 +1,4 @@
+import {BLUEPRINTS,learnedBlueprint} from './blueprints.js';
 // Four structural rebuilds across six swallowing sizes. Weapon ranks are independent.
 export const CASTLE_STAGES = [
   { level:1, name:'Wandering cottage', detail:'A small chassis with the first weapon mount.' },
@@ -24,6 +25,7 @@ export const CASTLE_LAYOUTS = Array.from({length:12},(_,index)=>{
 
 const WEAPON_BASES = {cannon:0,ice:3,wind:6,lightning:9,ember:12};
 export function weaponAtlas(weapon){return weapon==='summon'||weapon==='roots'?'allies':'equipment';}
+export function equippedArt(player,weapon){const id=learnedBlueprint(player,weapon);return id?{atlas:'tactics',frame:BLUEPRINTS[id].sprite}:{atlas:weaponAtlas(weapon),frame:weaponFrame(weapon,player.modules[weapon],player.path)};}
 export function weaponGrade(weapon,rank=1,path=null) {
   if(weapon==='summon'||weapon==='roots')return rank>=4?2:rank>=2?1:0;
   if(weapon==='cannon')return rank>=6?2:rank>=4||path==='harbor_lance'?1:0;

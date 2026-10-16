@@ -1,0 +1,59 @@
+{
+  "version": "V8",
+  "generator": "built-in image_gen",
+  "runtime": "assets/tactics-v8-mechanical.webp",
+  "reference": "assets/tactics-v8.png",
+  "assets": [
+    {
+      "png": "assets/tactics-v8.png",
+      "webp": "assets/tactics-v8.webp",
+      "prompt": "assets/tactics-v8.prompt.txt",
+      "role": "botanical draft; not loaded by the game",
+      "generated_source": "C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-e13ac9c6-b0ee-4219-ae22-eea403f90cb3.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "rgba_identical": true,
+      "runtime_bytes": 1516030,
+      "sha256": "e8c74277209d36a41fb7c623755f64023b7a92c0b49343f98edd6f4d084f0d68"
+    },
+    {
+      "png": "assets/tactics-v8-mechanical.png",
+      "webp": "assets/tactics-v8-mechanical.webp",
+      "prompt": "assets/tactics-v8-mechanical.prompt.txt",
+      "role": "final runtime atlas",
+      "generated_source": "C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-91d3ffd4-07ed-42f7-8019-6f6c27bbbeb6.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "rgba_identical": true,
+      "runtime_bytes": 1630426,
+      "sha256": "81ec4dcea1142230ba2131543b03939d9c20f1e00d498b3dfeec65a143c623d7"
+    }
+  ],
+  "final_frames": {
+    "0-3": "Clockwork combat drone: hover, rotor spin, attack dash, charged hover",
+    "4": "Drone hangar castle module",
+    "5": "Field cannon and mechanical stand",
+    "6": "Returning metal windwheel",
+    "7": "Electromagnetic lance",
+    "8": "Ice crystal mirror wall on stone feet",
+    "9": "Fire ribbon",
+    "10-11": "Closed and armed botanical thorn mines",
+    "12": "Field artillery castle module",
+    "13": "Scatter cannon castle module",
+    "14": "Blueprint case",
+    "15": "Plasma burst"
+  },
+  "processing": "Copied generated originals unchanged; lossless WebP conversion preserves every RGBA byte. Runtime atlas extraction/pose rotation only; no manual recoloring."
+}

@@ -10,6 +10,7 @@ import { BattleGuidance } from './guidance.js';
 import { CombatVFX } from './combat-vfx.js';
 import { castleStage } from './castle-appearance.js';
 import {FormationVisuals} from './formation-visuals.js';
+import {TacticalVisuals} from './tactical-visuals.js';
 
 const TAU=Math.PI*2;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -23,6 +24,7 @@ export class BattleRenderer {
     this.swallowFeedback=new SwallowFeedback(this);
     this.guidance=new BattleGuidance(this);this.combatVFX=new CombatVFX(this);
     this.formationVisuals=new FormationVisuals(this);
+    this.tacticalVisuals=new TacticalVisuals(this);
     this.camera={x:0,z:7};this.effects=[];this.particles=[];this.numbers=[];this.traces=[];
     this.shake=0;this.hurtFlash=0;this.time=0;this.timeTint=0;this.cityGrowth=null;
     this.resolutionScale=1;this.frameTotal=0;this.frameCount=0;this.fps=0;
@@ -67,13 +69,14 @@ export class BattleRenderer {
   project(x,z,height=0){return{x:this.width*.5+(x-this.camera.x)*this.scale,y:this.height*.57+(z-this.camera.z)*this.sy-height*this.scale};}
   screenToWorld(x,y){return{x:this.camera.x+(x-this.width*.5)/this.scale,z:this.camera.z+(y-this.height*.57)/this.sy};}
   visible(point,margin=170){return point.x>-margin&&point.x<this.width+margin&&point.y>-margin&&point.y<this.height+margin;}
-  clear(){this.effects=[];this.particles=[];this.numbers=[];this.traces=[];this.shake=0;this.timeTint=0;this.cityGrowth=null;this.arsenalVisuals.clear();this.routeVisuals.clear();this.combatVFX.clear();this.formationVisuals.clear();}
+  clear(){this.effects=[];this.particles=[];this.numbers=[];this.traces=[];this.shake=0;this.timeTint=0;this.cityGrowth=null;this.arsenalVisuals.clear();this.routeVisuals.clear();this.combatVFX.clear();this.formationVisuals.clear();this.tacticalVisuals.clear();}
 
   event(event){
     const e=event;
     this.arsenalVisuals.event(e);
     this.routeVisuals.event(e);this.combatVFX.event(e);
     this.formationVisuals.event(e);
+    this.tacticalVisuals.event(e);
     if(e.type==='grow'&&castleStage(e.level)!==castleStage(e.previousLevel))this.cityGrowth={previousLevel:e.previousLevel||1,age:0,life:.65};
     if(e.type==='route-burst'){this.shake=Math.max(this.shake,.28);this.burst(e.x,e.z,ROUTES[e.route].color,18,1.25);}
     if(e.type==='meteor-impact'){this.effects.push({atlas:'skillEffects',row:0,x:e.x,z:e.z,size:e.size,age:0,life:.6});this.burst(e.x,e.z,'#ffc06c',e.phoenix?22:12,1.5);this.shake=Math.max(this.shake,e.phoenix?.4:.18);}
@@ -176,14 +179,17 @@ export class BattleRenderer {
     this.arsenalVisuals.ground(game);
     this.routeVisuals.ground(game);
     this.formationVisuals.ground(game);
+    this.tacticalVisuals.ground(game);
     const pos=this.project(p.x,p.z);
     if(!title)this.art.drawPortal(c,pos.x,pos.y,p.visualRadius*this.scale,this.time,{evolution:p.evolution,pulse:p.recoil*.3});
     this.combatVFX.warnings(game,false);
     this.drawTraces('ground',dt,worldDt);
     const actors=game.entities.filter(e=>e.state!=='gone'&&this.visible(this.project(e.x,e.z))).map(e=>({z:e.z,entity:e}));
     for(const ally of game.arsenal.formation.guardians)if(ally.hp>0)actors.push({z:ally.z,ally});
+    for(const turret of game.arsenal.tactics.turrets)if(turret.hp>0)actors.push({z:turret.z,turret});
     if(!title)actors.push({z:p.z,hero:true});actors.sort((a,b)=>a.z-b.z);
     for(const actor of actors){
+      if(actor.turret){this.tacticalVisuals.turret(actor.turret);continue;}
       if(actor.ally){this.formationVisuals.guardian(actor.ally,game);continue;}
       if(actor.hero){
         const hero=this.project(p.x,p.z);
@@ -214,6 +220,7 @@ export class BattleRenderer {
     this.arsenalVisuals.air(game,dt);
     this.routeVisuals.air(game,dt);
     this.formationVisuals.air(game,dt);
+    this.tacticalVisuals.air(game,dt);
     this.combatVFX.air(game,dt,worldDt);
     this.combatVFX.warnings(game,true);
     this.drawBullets(game,'enemy');
@@ -264,6 +271,7 @@ export class BattleRenderer {
       else if(['beetle','ram','mortar','mage'].includes(e.kind))this.art.drawEnemy(c,e.kind,v.x,foot+bounce,width,e.age+e.id*.2,options);
       else this.art.draw(c,'characters',e.sprite,v.x,foot+bounce,width,options);
       this.combatVFX.enemy(e,v,width);
+      if(e.guard&&e.state==='alive'){c.save();c.font='700 10px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle='#fff9e9';c.fillStyle='#4c7291';c.strokeText(t('Outpost guard'),v.x,foot-width-23);c.fillText(t('Outpost guard'),v.x,foot-width-23);c.restore();}
       if(e.ward>0&&e.state==='alive'){
         c.save();c.translate(v.x,v.y-e.radius*this.scale*.58);c.scale(1,.8);c.strokeStyle='#c999f699';c.lineWidth=2;c.setLineDash([7,9]);c.beginPath();c.arc(0,0,width*.49,0,TAU);c.stroke();c.restore();
       }
@@ -283,6 +291,8 @@ export class BattleRenderer {
       c.save();c.strokeStyle=color;c.globalAlpha=.9;c.lineWidth=2.5;c.beginPath();c.ellipse(v.x,v.y,28,17,0,0,TAU);c.stroke();c.globalAlpha=.15;c.fillStyle=color;c.fill();
       const beam=c.createLinearGradient(v.x,v.y-100,v.x,v.y);beam.addColorStop(0,color+'00');beam.addColorStop(1,color+'55');c.fillStyle=beam;c.globalAlpha=1;c.fillRect(v.x-13,v.y-100,26,100);c.restore();
       this.art.draw(c,art.atlas,art.sprite,v.x,foot+Math.sin(e.age*2)*3,Math.max(width,56),{alpha,shadow:true});
+    }else if(e.category==='blueprint'){
+      c.save();c.strokeStyle='#669eb2';c.lineWidth=2.5;c.beginPath();c.ellipse(v.x,v.y,25,14,0,0,TAU);c.stroke();this.art.draw(c,'tactics',14,v.x,foot+Math.sin(e.age*2)*2,Math.max(52,width*2),{alpha,shadow:true});c.restore();
     }else if(e.category==='core'){
       c.save();c.translate(v.x,foot-12+Math.sin(e.age*3)*4);c.rotate(e.age*.5);c.shadowBlur=18;c.shadowColor='#c49bea';c.fillStyle='#d3a9f4';c.beginPath();c.moveTo(0,-17);c.lineTo(11,0);c.lineTo(0,17);c.lineTo(-11,0);c.closePath();c.fill();c.restore();
     }else{

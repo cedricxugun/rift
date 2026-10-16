@@ -22,7 +22,7 @@ export function weaponMount(player, weapon, index = 0, angle = player.aim) {
   const baseX=player.x+(anchor[0]-layout.x)/layout.radius*radius+pairedOffset;
   const baseZ=player.z+forward*radius;
   const baseHeight=(forward*.62-(anchor[1]-layout.y)/layout.radius*(1261/1247))*radius;
-  const directional=weapon==='cannon'||weapon==='ice';
+  const directional=weapon==='cannon'||weapon==='ice'||weapon==='lightning'&&player.perks?.stormLance;
   const x=baseX+(weapon==='ember'?moduleWidth*.17:0),z=baseZ;
   const height=baseHeight+moduleWidth*(directional?.34:weapon==='wind'?.38:weapon==='ember'?.54:.7);
   const length=directional?moduleWidth*.58:0;

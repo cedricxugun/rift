@@ -12,7 +12,9 @@ export class FormationVisuals{
   ground(game){
     const r=this.r,c=r.ctx;
     for(const garden of game.arsenal.formation.gardens){
+      if(garden.life<=0)continue;
       const v=r.project(garden.x,garden.z);if(!r.visible(v,garden.radius*r.scale))continue;
+      if(game.player.perks.rootMines){r.art.draw(c,'tactics',garden.age>=.7?11:10,v.x,v.y,Math.max(26,garden.radius*r.scale*.9),{shadow:true});c.save();c.globalAlpha=.38;c.strokeStyle='#c9b45e';c.lineWidth=1.5;c.beginPath();c.ellipse(v.x,v.y,garden.radius*r.scale,garden.radius*r.sy,0,0,TAU);c.stroke();c.restore();continue;}
       c.save();c.globalAlpha=Math.min(.42,garden.life*1.5);
       const tint=garden.burning?{color:'#dc954e',amount:.44}:game.arsenal.has('frostGarden')?{color:'#b5e9e0',amount:.35}:null;
       c.translate(v.x,v.y);c.scale(1,.56);r.art.draw(c,'allies',15,0,garden.radius*r.sy*.65,garden.radius*r.scale*2,{shadow:false,tint});c.restore();
@@ -25,13 +27,14 @@ export class FormationVisuals{
     }
   }
   guardian(ally,game){
-    const r=this.r,c=r.ctx,v=r.project(ally.x,ally.z,ally.spawnLift||0);
+    const r=this.r,c=r.ctx,v=r.project(ally.x,ally.z,(ally.spawnLift||0)+(ally.bee?.65:0));
     if(!r.visible(v))return;
     const upgraded=game.player.modules.summon>=3||ally.captain;
     const frame=(upgraded?4:0)+(ally.strike>0?2:ally.flash>0?3:ally.moving?Math.floor(ally.age*7)%2:0);
     const width=ally.radius*r.scale*4;
     c.save();c.fillStyle=ally.captain?'#edc56c55':'#74cfb45a';c.strokeStyle=ally.captain?'#f6d87d':'#bef0cb';c.lineWidth=1.5;c.beginPath();c.ellipse(v.x,v.y,width*.3,width*.16,0,0,TAU);c.fill();c.stroke();c.restore();
-    r.art.drawPose(c,'allies',frame,v.x,v.y,width,{shadow:false,flash:ally.flash*.8});
+    if(ally.bee)r.art.drawPose(c,'tactics',ally.strike>0?2:game.arsenal.formation.rally>0?3:Math.floor(ally.age*10)%2,v.x,v.y,width*1.15,{shadow:false,flash:ally.flash*.8,flip:ally.facing<0});
+    else r.art.drawPose(c,'allies',frame,v.x,v.y,width,{shadow:false,flash:ally.flash*.8});
     c.fillStyle='#3a5247';c.fillRect(v.x-width*.27,v.y-width-4,width*.54,3);c.fillStyle='#a2e3b2';c.fillRect(v.x-width*.27,v.y-width-4,width*.54*ally.hp/ally.maxHp,3);
   }
   air(game,dt){

@@ -1,6 +1,7 @@
 import { weaponMount } from './weapon-rig.js';
 import { LIGHTNING_RANKS, EMBER_RANKS, activeCombos, withinCombatView } from './data.js';
 import { FormationCombat } from './formations.js';
+import {TacticalCombat} from './tactics.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const TAU=Math.PI*2;
@@ -10,6 +11,7 @@ export class Arsenal {
     this.game=game;this.fields=[];this.meteors=[];this.comboIds=[];this.volley=0;
     this.cooldowns={lightning:.4,ember:.6,orb:.3,thunder:4,firestorm:0,prism:0,core:1};
     this.formation=new FormationCombat(game);
+    this.tactics=new TacticalCombat(game);
   }
 
   has(id){return this.comboIds.includes(id);}
@@ -84,7 +86,10 @@ export class Arsenal {
       }
       if(p.modules.lightning>=4)target.electrified=2;
       if(this.has('thunderBattery'))target.conductive=3;
+      const plasma=this.has('plasmaArc')&&target.burn>0&&g.playerTime>=(target.nextPlasma||0);
+      if(plasma)target.nextPlasma=g.playerTime+1.4;
       this.strike(target,damage*Math.max(.5,1-i*.055),'lightning',combo);g.stats.shots++;
+      if(plasma){for(const e of g.entities)if(g.mode==='playing'&&e.category==='enemy'&&e.state==='alive'&&distance(e,target)<2.5*p.area)g.damage(e,(42+p.modules.lightning*12)*p.power,{weapon:'lightning',combo:'plasmaArc'});g.emit('plasma-burst',{x:target.x,z:target.z,size:5*p.area});}
       from={x:target.x,z:target.z};
       target=g.entities.filter(e=>e.category==='enemy'&&e.state==='alive'&&e.spawning<=0&&!visited.has(e.id)&&distance(e,from)<6.2*p.area).sort((a,b)=>distance(a,from)-distance(b,from))[0];
     }
@@ -106,6 +111,7 @@ export class Arsenal {
   update(dt,worldDt=dt){
     const g=this.game,p=g.player;
     if(g.mode!=='playing'){this.fields=[];this.meteors=[];return;}
+    this.tactics.update(dt);
     this.formation.update(dt);
     if(g.mode!=='playing'){this.fields=[];this.meteors=[];return;}
     for(const key of Object.keys(this.cooldowns))this.cooldowns[key]-=dt;
@@ -136,7 +142,7 @@ export class Arsenal {
     }
     if(target&&ember&&this.cooldowns.ember<=0){
       const rank=EMBER_RANKS[ember];
-      for(let i=0;i<rank.shots;i++){const e=targets[i%targets.length];this.meteor({x:e.x+(i?Math.cos(i*2.4)*.5:0),z:e.z+(i?Math.sin(i*2.4)*.5:0)},rank.damage*p.power,rank.radius,ember>=3,i*.13);}
+      for(let i=0;i<Math.max(1,rank.shots-(p.perks.cinderTrail?1:0));i++){const e=targets[i%targets.length];this.meteor({x:e.x+(i?Math.cos(i*2.4)*.5:0),z:e.z+(i?Math.sin(i*2.4)*.5:0)},rank.damage*p.power,rank.radius,ember>=3,i*.13);}
       this.cooldowns.ember=rank.interval/haste;
     }
     if(g.mode!=='playing'){this.fields=[];this.meteors=[];return;}

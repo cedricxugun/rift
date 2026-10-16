@@ -85,9 +85,9 @@ describe('V6 route and expedition contracts',()=>{
     expect(g.entities.some(e=>e.kind==='medkit'&&e.healing===18)).toBe(true);
   });
   test('both caravan wagons are food but their special reward cannot be doubled',()=>{
-    const g=battlefield();g.expedition.next=0;g.expedition.update(0);const active=g.expedition.active;
+    const g=battlefield();g.expedition.index=0;g.expedition.next=0;g.expedition.update(0);const active=g.expedition.active;
     for(const id of active.targets){const e=g.entities.find(e=>e.id===id);g.beginEat(e);g.finishEat(e);}
     expect(g.stats.eventsCompleted).toBe(1);expect(g.player.mass).toBe(44);
-    expect(g.entities.filter(e=>e.kind==='crate')).toHaveLength(4);
+    expect(g.entities.filter(e=>e.kind==='crate'&&!e.harvest)).toHaveLength(4);
   });
 });

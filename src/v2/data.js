@@ -16,7 +16,7 @@ export const SKILLS = {
   wind: { name: 'Tempest', color: '#86d7bb', icon: 'wind', sprite: 13, max: 6 },
   lightning: { name: 'Lightning', color: '#c8a246', icon: 'bolt', atlas: 'arsenal', sprite: 0, max: 5 },
   ember: { name: 'Ember', color: '#d77b48', icon: 'flame', atlas: 'arsenal', sprite: 4, max: 5 },
-  summon: {name:'Acorn legion',typeLabel:'Summoning skill',color:'#75b690',icon:'shield',atlas:'allies',sprite:8,max:5},
+  summon: {name:'Summoning workshop',typeLabel:'Summoning skill',color:'#75b690',icon:'shield',atlas:'allies',sprite:8,max:5},
   roots: {name:'Briar gardens',typeLabel:'Ground skill',color:'#a4a85d',icon:'leaf',atlas:'allies',sprite:12,max:5},
 };
 export const BUFF_ART = {
@@ -91,6 +91,10 @@ export const ROOT_RANKS=[null,
 ];
 export const WEAPON_RANKS={cannon:CANNON_RANKS,ice:ICE_RANKS,wind:WIND_RANKS,lightning:LIGHTNING_RANKS,ember:EMBER_RANKS,summon:SUMMON_RANKS,roots:ROOT_RANKS};
 export const COMBOS = {
+  siegeLegion:{name:'Marching artillery',description:'Five swallowed combat remains store a turret deployment. On contact, deploy a temporary cannon, up to two. Hold the ground it covers.',needs:{cannon:2,summon:2},color:'#c1a66e',atlas:'tactics',sprite:5},
+  emberLegion:{name:'Firewing legion',description:'Rallied guardians breathe a wide flame cone instead of swinging their blades. Drones inherit the flame attack.',needs:{summon:2,ember:2},color:'#df9b55',atlas:'tactics',sprite:3},
+  seedCyclone:{name:'Seed cyclone',description:'Wind pulses gather enemies into your nearest occupied garden. Thorn mines can turn the gathering into a chain explosion.',needs:{wind:2,roots:2},color:'#79bfa4',atlas:'tactics',sprite:6},
+  plasmaArc:{name:'Plasma cascade',description:'Lightning detonates burning targets in amber plasma bursts. Each target can burst once every 1.4 seconds.',needs:{lightning:2,ember:2},color:'#d4aa64',atlas:'tactics',sprite:15},
   salvageVortex:{name:'Salvage vortex',description:'Every third cannon volley creates a wind funnel that draws wreckage toward your mouth.',needs:{cannon:3,wind:2},color:'#6aaa9b',sprite:12},
   thunderBattery:{name:'Thunder battery',description:'Every third cannon burst conducts chain lightning.',needs:{cannon:3,lightning:2},color:'#d7b448',sprite:8},
   thermalShock:{name:'Thermal shock',description:'Fire meets frost in a wide, explosive steam burst.',needs:{ice:2,ember:2},color:'#83bdd0',sprite:9},
@@ -106,6 +110,10 @@ export const COMBOS = {
   blizzardWard:{name:'Blizzard mantle',description:'Wind pulses freeze nearby enemies and erase two hostile shots. Fight along the edge of the cold ring.',needs:{wind:2,ice:2},color:'#9ed7cb',sprite:10},
 };
 export const COMBO_TACTICS={
+  siegeLegion:'Collect combat remains, build a firing position, then fight inside its coverage.',
+  emberLegion:'Swallow to rally and bring your guardians close enough to sweep the crowd with fire.',
+  seedCyclone:'Lay a retreat garden, then let wind gather pursuers into its roots or mines.',
+  plasmaArc:'Keep enemies in fire until lightning detonates their burning front line.',
   salvageVortex:'Collect combat wreckage to sustain up to 40% faster attacks for 3 seconds.',
   thunderBattery:'Lightning marks targets. Cannon hits on marked targets deal double ward damage.',
   thermalShock:'Burn slowed enemies or chill burning enemies to break wards and interrupt a windup.',
@@ -121,6 +129,7 @@ export const COMBO_TACTICS={
   blizzardWard:'Stay near enemies to catch them in the freezing pulse, then collect their wreckage between attacks.',
 };
 export const COMBO_ROLES={salvageVortex:'Salvage sustain',thunderBattery:'Ward breaker',thermalShock:'Interrupt burst',stormConduit:'Time counter',firestorm:'Close pressure',shatterCircuit:'Frozen chain',meteorForge:'Zone control',stormLegion:'Formation damage',livingGrove:'Summon ambush',frostGarden:'Root and shatter',wildfireGarden:'Garden detonation',shatterBattery:'Packed-line breaker',blizzardWard:'Close-range defense'};
+Object.assign(COMBO_ROLES,{siegeLegion:'Mobile strongpoint',emberLegion:'Flame breath',seedCyclone:'Trap gathering',plasmaArc:'Burning chain burst'});
 export function activeCombos(modules){return Object.keys(COMBOS).filter(id=>Object.entries(COMBOS[id].needs).every(([skill,rank])=>modules[skill]>=rank));}
 export const ENEMIES = {
   beetle: { name: 'Copper scarab', description: 'Aimed shots. Keep moving across its aim.', sprite: 4, radius: .84, hp: 78, speed: 3.1, damage: 11, mass: 4, score: 35 },

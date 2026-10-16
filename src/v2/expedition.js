@@ -1,15 +1,14 @@
 import {ELITE_TIMES,BOSS_TIME} from './data.js';
 
 const clamp=n=>Math.max(-24,Math.min(24,n));
-const points=[{x:-15,z:-14},{x:16,z:-10},{x:-14,z:16},{x:15,z:15}];
 export const OPPORTUNITIES={
   caravan:{name:'Supply caravan',description:'Catch the moving wagons before they leave.',sprite:12,color:'#7b9c68'},
-  outpost:{name:'Guarded outpost',description:'Defeat the wardens, then swallow the cache.',sprite:13,color:'#b78a5c'},
+  outpost:{name:'Guarded outpost',description:'Take an outpost for a free tactical blueprint.',sprite:13,color:'#b78a5c'},
   garden:{name:'Recovery garden',description:'Gather the garden cache to reveal recovery supplies.',sprite:14,color:'#72a698'},
 };
 
 export class Expedition{
-  constructor(game){this.game=game;this.active=null;this.next=34;this.index=0;}
+  constructor(game){this.game=game;this.active=null;this.next=34;this.index=1;}
 
   update(dt){
     const g=this.game,p=g.player;
@@ -36,8 +35,10 @@ export class Expedition{
     const nextDuel=ELITE_TIMES[g.eliteIndex]??BOSS_TIME;
     if(g.time<this.next||g.time>530||g.time<g.breatherUntil||nextDuel-g.time<=18||g.entities.some(e=>(e.elite||e.boss)&&e.state==='alive'))return;
     const type=['caravan','outpost','garden'][this.index%3];
-    const choices=points.filter(point=>Math.hypot(point.x-p.x,point.z-p.z)>7).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z));
-    const point=choices[0]||points[this.index%points.length];this.index++;
+    const direction=p.moveAim??p.aim;
+    const choices=Array.from({length:8},(_,i)=>{const angle=direction+i*Math.PI/4;return{x:clamp(p.x+Math.cos(angle)*10),z:clamp(p.z+Math.sin(angle)*10)};});
+    const point=choices.find(candidate=>Math.hypot(candidate.x-p.x,candidate.z-p.z)>7)||choices[0];this.index++;
+    for(const fraction of [.33,.66])g.harvest.pile(p.x+(point.x-p.x)*fraction,p.z+(point.z-p.z)*fraction,3);
     const opportunity={type,x:point.x,z:point.z,targets:[],guards:[],remaining:0,unlocked:type!=='outpost',life:type==='caravan'?50:70,dx:point.x>0?-1:1,dz:point.z>0?-.25:.25,claimed:false};
     this.active=opportunity;
     const count=type==='caravan'?2:1;
@@ -59,6 +60,7 @@ export class Expedition{
     active.claimed=true;g.stats.eventsCompleted++;
     g.player.energy+=Math.min(70,g.player.energyCost*.35);g.checkSkillReward();
     if(active.type==='garden'||active.type==='outpost')g.prop('medkit',entity.x,entity.z+1,{healing:active.type==='garden'?28:18,recoverySource:'event'});
+    if(active.type==='outpost'){g.spawn({category:'blueprint',kind:'blueprint',x:entity.x,z:entity.z-1,radius:.4,mass:0});g.emit('tactic',{label:'Blueprint recovered',x:entity.x,z:entity.z});}
     for(let i=0;i<4;i++)g.prop('crate',entity.x+Math.cos(i*Math.PI*.5)*1.8,entity.z+Math.sin(i*Math.PI*.5)*1.8,{mass:8});
     g.emit('opportunity-complete',{kind:active.type,x:entity.x,z:entity.z});
   }

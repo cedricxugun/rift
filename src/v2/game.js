@@ -12,6 +12,7 @@ import { EnemyPatterns } from './enemy-patterns.js';
 import { energyCoreRadius, weaponMount } from './weapon-rig.js';
 import { expeditionStage, BULLET_TIME, ELITE_ROSTER } from './data.js';
 import {hazardHits} from './hazards.js';
+import {BLUEPRINTS,PACKS,packAt,blueprintRankPreview} from './blueprints.js';
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 const dist = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 
@@ -27,6 +28,7 @@ export class BattleGame {
     this.entities = []; this.bullets = []; this.warnings = []; this.shots = []; this.events = [];
     this.wave = 0; this.nextSpawn = OPENING_TIME; this.eliteIndex = 0;this.pacingStart=OPENING_TIME;this.packIndex=0;
     this.rewardPending=false;this.rewardCooldown=0;this.coreOffered=false;
+    this.blueprintDraft=false;this.lastPack=null;this.draftSeen=new Set();
     this.bossSpawned = false; this.bossDefeated = false; this.feastTime = 0; this.corePending = 0;
     this.shrineGroups = 0; this.supplyTime = 70; this.killHealCooldown = 0;
     this.killsSinceHealthPack = 0; this.choiceOffers = []; this.breatherUntil = 0;
@@ -50,6 +52,7 @@ export class BattleGame {
     this.stats = { eaten: 0, kills: 0, direct: 0, shots: 0, enemyVolleys: 0, hostileShots: 0, bossVolleys: 0, damageTaken: 0, damageDealt: 0, bulletTimes: 0, erasedBullets: 0, upgrades: 0, elites: 0, healed: 0, healthPacks: 0 };
     this.stats.comboTriggers=0;this.stats.routeBursts=0;this.stats.guardianBlocks=0;this.stats.eventsCompleted=0;this.score = 0; this.standingTime = 0; this.longestIdle = 0; this.result = null;
     Object.assign(this.stats,{rallies:0,guardianStrikes:0,guardiansLost:0,guardianIntercepts:0,rootBlooms:0,damageByWeapon:{},comboDamage:{},comboHits:{}});
+    Object.assign(this.stats,{turretsPlaced:0,turretShots:0,wheelsThrown:0,wheelHits:0,lancesReleased:0,reflectedShots:0,trailHits:0,minesDetonated:0,blueprintsClaimed:0});
     this.generateWorld();
   }
 
@@ -105,8 +108,8 @@ export class BattleGame {
   spawnEnemy(kind, options = {}) {
     const p=this.player,def=ENEMIES[kind];
     const special=kind==='boss'||ELITE_ROSTER.includes(kind)||options.elite;
-    let angle=this.rng(0,TAU);
-    if(!special&&options.x===undefined&&this.time>=20&&Math.hypot(p.vx,p.vz)>.1&&this.random()<.65)angle=Math.atan2(p.vz,p.vx)+this.rng(-1.15,1.15);
+    let angle=options.spawnAngle??this.rng(0,TAU);
+    if(options.spawnAngle===undefined&&!special&&options.x===undefined&&this.time>=20&&Math.hypot(p.vx,p.vz)>.1&&this.random()<.65)angle=Math.atan2(p.vz,p.vx)+this.rng(-1.15,1.15);
     const sx = Math.min(this.view.halfWidth + 1.5,16), sz = Math.min(this.view.halfHeight + 1,15);
     let x=0,z=0;
     for(let attempt=0;attempt<8;attempt++){
@@ -149,6 +152,14 @@ export class BattleGame {
 
   rollSkillOffers(excluded=[]){
     const p=this.player;
+    const plans=eligiblePerks(p,{blueprintReward:this.blueprintDraft}).filter(id=>BLUEPRINTS[id]&&!excluded.includes(id)).map(perk=>({perk,kind:'tactic',rarity:'rare',...(this.blueprintDraft&&p.modules[BLUEPRINTS[perk].requires]<2?{raiseSkill:BLUEPRINTS[perk].requires}:{})}));
+    if(this.blueprintDraft){
+      const choices=[];while(plans.length&&choices.length<3){const owned=plans.filter(e=>p.modules[BLUEPRINTS[e.perk].requires]>0),choice=this.pickWeighted(owned.length?owned:plans);choices.push(choice);for(let i=plans.length-1;i>=0;i--)if(BLUEPRINTS[plans[i].perk].family===BLUEPRINTS[choice.perk].family)plans.splice(i,1);}
+      const weapons=Object.keys(SKILLS).filter(skill=>p.modules[skill]>0&&p.modules[skill]<SKILLS[skill].max&&!excluded.includes(skill)).sort((a,b)=>p.modules[b]-p.modules[a]);
+      while(weapons.length&&choices.length<3)choices.push({skill:weapons.shift(),kind:'weapon',rarity:'rare'});
+      while(choices.length<3)choices.push({buff:['power','haste','health'][choices.length],kind:'stat',rarity:'rare'});
+      return choices.map(choice=>({id:this.nextId++,...choice}));
+    }
     const primary=ROUTES[p.route].primary;
     if(p.rewardLevel>=Math.max(4,p.branchDeferredUntil||0)&&!p.path){
       const perk=this.pickWeighted(eligiblePerks(p).filter(id=>PERKS[id].kind==='stat').map(perk=>({perk,rarity:PERKS[perk].rarity})))?.perk;
@@ -166,11 +177,12 @@ export class BattleGame {
     const first=p.rewardLevel===0&&!excluded.includes(primary)?weapons.find(e=>e.skill===primary):this.pickWeighted(freshWeapons.length?freshWeapons:weaponPool);if(first)offers.push(first);
     const statPool=perks.filter(e=>e.kind==='stat'),freshStats=statPool.filter(e=>!excluded.includes(e.perk));
     const second=this.pickWeighted(freshStats.length?freshStats:statPool);if(second)offers.push(second);
+    if(p.rewardLevel>=2&&plans.length&&(p.rewardLevel%2===0||!Object.keys(BLUEPRINTS).some(id=>p.perks[id])))offers.push(this.pickWeighted(plans));
     const cores=perks.filter(e=>e.kind==='core');
-    if(cores.length&&(!this.coreOffered||this.random()<.2)){offers.push(this.pickWeighted(cores));this.coreOffered=true;}
+    if(offers.length<3&&cores.length&&(!this.coreOffered||this.random()<.2)){offers.push(this.pickWeighted(cores));this.coreOffered=true;}
     const mastery=masteryFor(p);
     if(offers.length<3&&mastery&&!p.mastery&&p.rewardLevel>=7)offers.push({mastery,kind:'mastery',rarity:'epic'});
-    const pool=[...weapons,...perks.filter(e=>e.kind==='barrage'||e.kind==='tactic')].filter(e=>!offers.includes(e)&&!excluded.includes(e.skill||e.perk));
+    const pool=[...weapons,...perks.filter(e=>e.kind==='barrage'||e.kind==='tactic')].filter(e=>!offers.some(o=>(o.skill||o.perk)===(e.skill||e.perk))&&!excluded.includes(e.skill||e.perk));
     if(offers.length<3&&p.rewardLevel<=1){
       const newForms=pool.filter(e=>['summon','roots'].includes(e.skill)&&p.modules[e.skill]===0);
       const partner=newForms.length?newForms[((this.seed>>>0)+p.rewardLevel)%newForms.length]:pool.find(e=>e.skill===ROUTES[p.route].partner);
@@ -180,7 +192,7 @@ export class BattleGame {
       const links=pool.filter(e=>e.skill&&comboRecommendations(p,e.skill).some(c=>c.needs[e.skill]>p.modules[e.skill]&&c.order<=2));
       const entry=this.pickWeighted(links.length&&this.random()<.65?links:pool);offers.push(entry);pool.splice(pool.indexOf(entry),1);
     }
-    const remaining=perks.filter(e=>!offers.includes(e));
+    const remaining=perks.filter(e=>!offers.some(o=>(o.skill||o.perk)===(e.skill||e.perk)));
     while(offers.length<3&&remaining.length){const entry=this.pickWeighted(remaining);offers.push(entry);remaining.splice(remaining.indexOf(entry),1);}
     while(offers.length<3)offers.push({buff:['power','health','heal'][offers.length],rarity:'common',kind:'stat'});
     return offers.map(offer=>({id:this.nextId++,...offer,...(offer.perk&&PERKS[offer.perk].stat?{rarity:this.pickWeighted(Object.entries(RARITIES).filter(([id])=>id!=='legendary').map(([rarity])=>({rarity}))).rarity}:{})}));
@@ -188,7 +200,7 @@ export class BattleGame {
 
   rerollShrine(){
     if(this.mode!=='choosing'||this.player.rerolls<=0||this.choiceOffers.some(e=>e.path))return false;
-    const excluded=this.choiceOffers.map(e=>e.skill||e.perk);this.player.rerolls--;this.choiceOffers=this.rollSkillOffers(excluded);return true;
+    this.choiceOffers.forEach(e=>this.draftSeen.add(e.skill||e.perk));this.player.rerolls--;this.choiceOffers=this.rollSkillOffers([...this.draftSeen]);return true;
   }
 
   chooseShrine(id) {
@@ -197,12 +209,14 @@ export class BattleGame {
     if(!chosen)return false;
     const p=this.player;
     this.choiceOffers=[];this.mode='playing';p.invuln=Math.max(p.invuln,1.5);
-    p.energy=Math.max(0,p.energy-p.energyCost);p.rewardLevel++;p.energyCost=rewardCost(p.rewardLevel);
-    this.rewardPending=false;this.rewardCooldown=this.time+1.5;
+    const blueprintReward=this.blueprintDraft;
+    if(!this.blueprintDraft){p.energy=Math.max(0,p.energy-p.energyCost);p.rewardLevel++;p.energyCost=rewardCost(p.rewardLevel);this.rewardPending=false;this.rewardCooldown=this.time+1.5;}
+    else this.stats.blueprintsClaimed++;
+    this.blueprintDraft=false;
     if(chosen.deferBranch)p.branchDeferredUntil=p.rewardLevel+2;
     if(chosen.path){p.path=chosen.path;this.stats.upgrades++;this.emit('branch',{id:p.path,x:p.x,z:p.z});}
     else if(chosen.mastery){p.mastery=chosen.mastery;this.stats.upgrades++;this.emit('mastery',{id:p.mastery,x:p.x,z:p.z});}
-    else if(chosen.skill)this.upgrade(chosen.skill);else if(chosen.perk)applyPerk(this,chosen.perk,chosen.rarity);else this.gainBuff(chosen.buff);
+    else if(chosen.skill)this.upgrade(chosen.skill);else if(chosen.perk){if(chosen.raiseSkill&&canLearnWeapon(p,chosen.raiseSkill))while(p.modules[chosen.raiseSkill]<2)this.upgrade(chosen.raiseSkill);applyPerk(this,chosen.perk,chosen.rarity,{blueprintReward});}else this.gainBuff(chosen.buff);
     return true;
   }
 
@@ -232,7 +246,11 @@ export class BattleGame {
     if(entity.buff)this.gainBuff(entity.buff);
     if(entity.skill)this.upgrade(entity.skill);
     if(entity.category==='shrine'){
+      this.blueprintDraft=false;this.draftSeen.clear();
       this.choiceOffers=this.rollSkillOffers();this.mode='choosing';this.player.moving=0;this.emit('shrine-choice');
+    }
+    if(entity.category==='blueprint'){
+      this.blueprintDraft=true;this.draftSeen.clear();this.choiceOffers=this.rollSkillOffers();this.mode='choosing';this.player.moving=0;this.emit('shrine-choice',{blueprint:true});
     }
     if(entity.category==='core') {
       this.corePending++;
@@ -256,7 +274,8 @@ export class BattleGame {
     p.modules[skill]++;this.stats.upgrades++;
     p.invuln=Math.max(p.invuln,1.3);
     this.cooldowns[skill]=.04;
-    this.emit('upgrade',{skill,previous,rank:p.modules[skill],...rankInfo(skill,p.modules[skill]),x:p.x,z:p.z});
+    const look=BLUEPRINTS[Object.keys(BLUEPRINTS).find(id=>p.perks[id]&&BLUEPRINTS[id].family===skill)];
+    this.emit('upgrade',{skill,previous,rank:p.modules[skill],...blueprintRankPreview(p,skill,p.modules[skill]),art:look?{atlas:'tactics',sprite:look.sprite}:null,x:p.x,z:p.z});
     this.arsenal.refresh();
   }
 
@@ -340,7 +359,7 @@ export class BattleGame {
       const distance=dist(entity,p);
       if(entity.category==='enemy')this.enemyAI(entity,worldDt,distance);
       if(entity.state!=='alive')continue;
-      if(entity.category==='shrine'){
+      if(entity.category==='shrine'||entity.category==='blueprint'){
         if(distance<p.radius+.35)this.beginEat(entity);
         else if(distance<Math.max(4.2,p.radius+2.1)){
           const pull=Math.min(distance,8.5*dt);
@@ -408,6 +427,8 @@ export class BattleGame {
     if(special){this.nextSpawn=Math.max(this.nextSpawn,this.time+3);return;}
     if(this.pacing.rest||this.time<this.nextSpawn)return;
     this.nextSpawn=this.time+this.pacing.interval;this.packIndex++;
+    const pack=packAt(this.time,this.seed),baseAngle=this.player.moveAim??this.player.aim;
+    if(pack!==this.lastPack){this.lastPack=pack;this.emit('pack',{id:pack});}
     const tier=Math.max(0,Math.min(3,Math.floor(this.time/140)));
     const limit=this.pacing.cap;
     const ordinary=alive.filter(e=>!e.elite&&!e.boss);
@@ -415,25 +436,24 @@ export class BattleGame {
     let rangedCount=ordinary.filter(e=>['mage','mortar','golem','herald'].includes(e.kind)).length;
     let heraldCount=ordinary.filter(e=>e.kind==='herald').length;
     for(let i=0;i<this.pacing.count&&ordinary.length+i<limit;i++){
-      const r=this.random();
-      let kind=r<.42?'beetle':r<.66?'ram':r<.8?'mortar':r<.94?'mage':'golem';
-      if(i===0&&this.time>=25)kind=['ram','mortar','mage','golem'][this.packIndex%4];
+      let kind=PACKS[pack].kinds[i%PACKS[pack].kinds.length];
       if(kind==='golem'&&this.time<100)kind='ram';
       if(kind==='mage'&&this.time<55)kind='beetle';
       if(kind==='mortar'&&this.time<25)kind='beetle';
       if(this.time<18)kind='beetle';
-      if(i===0&&this.time>=65&&!heraldCount&&this.packIndex%4===0){kind='herald';heraldCount++;}
+      if(kind==='herald'){if(heraldCount)kind='ram';else heraldCount++;}
       if(['mage','mortar','golem','herald'].includes(kind)&&rangedCount>=4)kind='ram';
       if(['mage','mortar','golem','herald'].includes(kind))rangedCount++;
       const veteran=kind!=='herald'&&tier>0&&veteranCount<(tier>=3?3:2)&&this.random()<.2+tier*.08;
       const hp=ENEMIES[kind].hp*(1+this.time*.006+this.time*this.time/90000)*(veteran?1.7:1);
       const armored=kind==='herald'||kind==='mage'||kind==='mortar'||kind==='golem'||veteran;
       const ward=armored?hp*(kind==='herald'?.45:veteran?.4:.22):0;
+      const formation={pack,spawnAngle:baseAngle+(i%2?1:-1)*(pack==='pincer'?.95:.45)+this.rng(-.3,.3),flankSide:pack==='pincer'&&kind==='ram'?(i%2?1:-1):0};
       if(veteran){
         veteranCount++;
-        this.spawnEnemy(kind,{veteran:true,hp,maxHp:hp,ward,maxWard:ward,spawning:1.05,cooldown:1.15,radius:Math.min(3.15,ENEMIES[kind].radius*(tier>=2?1.6:1.35))});
+        this.spawnEnemy(kind,{...formation,veteran:true,hp,maxHp:hp,ward,maxWard:ward,spawning:1.05,cooldown:1.15,radius:Math.min(3.15,ENEMIES[kind].radius*(tier>=2?1.6:1.35))});
       }else{
-        this.spawnEnemy(kind,{hp,maxHp:hp,ward,maxWard:ward});
+        this.spawnEnemy(kind,{...formation,hp,maxHp:hp,ward,maxWard:ward});
       }
     }
   }
@@ -445,16 +465,18 @@ export class BattleGame {
     const finisher=targets.find(e=>(e.elite||e.boss)&&e.hp/e.maxHp<.3);
     if(finisher)targets.splice(targets.indexOf(finisher),1),targets.unshift(finisher);
     if(!finisher&&this.arsenal.has('thunderBattery'))targets.sort((a,b)=>dist(a,p)/(a.conductive>0&&a.ward>0?2:1)-dist(b,p)/(b.conductive>0&&b.ward>0?2:1));
+    if(!finisher&&this.expedition.active?.type==='outpost'&&dist(p,this.expedition.active)<8)targets.sort((a,b)=>dist(a,p)/(a.guard?1.8:1)-dist(b,p)/(b.guard?1.8:1));
     const target=targets[0] || this.entities.filter(e=>e.category==='prop'&&e.state==='alive'&&e.hp>0&&!canSwallow(p,e)&&dist(p,e)<7).sort((a,b)=>dist(p,a)-dist(p,b))[0];
     if(target){
       p.aim=Math.atan2(target.z-p.z,target.x-p.x);
-      if(rank&&this.cooldowns.cannon<=0){
+      const scatter=!!p.perks.scatterBattery,count=info.shots+extra+(scatter?4:0),cannonPower=(scatter?.62:1)*(p.perks.fieldTurrets?.75:1);
+      if(rank&&this.cooldowns.cannon<=0&&(!scatter||dist(p,target)<info.range*.5)){
         this.arsenal.cannonBurst(target);
-        for(let burst=0;burst<info.burst;burst++)for(let shot=0;shot<info.shots+extra;shot++){
-          const spread=(shot-(info.shots+extra-1)/2)*.105;
-          this.shots.push({wait:burst*.105,weapon:'cannon',angle:p.aim+spread,targetX:target.x,targetZ:target.z,spread,damage:info.damage*p.power*shotPower*siegePower,rank,muzzle:shot,crit:this.random()<p.critChance});
+        for(let burst=0;burst<info.burst;burst++)for(let shot=0;shot<count;shot++){
+          const spread=(shot-(count-1)/2)*(scatter?.19:.105);
+          this.shots.push({wait:burst*.105,weapon:'cannon',angle:p.aim+spread,targetX:target.x,targetZ:target.z,spread,damage:info.damage*p.power*shotPower*siegePower*cannonPower,rank,muzzle:shot,scatter,crit:this.random()<p.critChance});
         }
-        if(p.perks.rearShot)this.shots.push({wait:0,weapon:'cannon',angle:p.aim+Math.PI,damage:info.damage*p.power*.65*siegePower,rank,muzzle:1,crit:this.random()<p.critChance});
+        if(p.perks.rearShot)this.shots.push({wait:0,weapon:'cannon',angle:p.aim+Math.PI,damage:info.damage*p.power*.65*siegePower*cannonPower,rank,muzzle:1,scatter,crit:this.random()<p.critChance});
         this.cooldowns.cannon=info.interval/haste;
       }
       if(rank>=8&&this.cooldowns.lance<=0){
@@ -465,7 +487,7 @@ export class BattleGame {
     }
     const ice=p.modules.ice;
     if(ice&&target&&this.cooldowns.ice<=0){
-      const count=(ice>=6?5:ice>=2?3:1)+extra;
+      const count=Math.max(1,(ice>=6?5:ice>=2?3:1)+extra-(p.perks.mirrorWall?1:0));
       for(let i=0;i<count;i++)this.shots.push({wait:i*.025,weapon:'ice',angle:p.aim+(i-(count-1)/2)*.22,targetX:target.x,targetZ:target.z,spread:(i-(count-1)/2)*.22,damage:(16+ice*8)*p.power*shotPower,rank:ice,crit:this.random()<p.critChance});
       this.cooldowns.ice=(1.75-ice*.1)/haste;
     }
@@ -478,12 +500,14 @@ export class BattleGame {
     const wind=p.modules.wind;
     if(wind&&this.cooldowns.wind<=0&&enemies.some(e=>e.state==='alive'&&dist(e,p)<8)){
       const radius=(wind>=5?7:4.5+wind*.35)*p.area;
-      this.emit('wind-pulse',{x:p.x,z:p.z,size:radius*2,rank:wind});
+      const garden=this.arsenal.has('seedCyclone')?this.arsenal.formation.gardens.filter(a=>a.life>0&&dist(a,p)<12&&enemies.some(e=>e.state==='alive'&&dist(e,a)<radius)).sort((a,b)=>dist(a,p)-dist(b,p))[0]:null;
+      const centre=garden||p;
+      this.emit('wind-pulse',{x:centre.x,z:centre.z,size:radius*2,rank:wind});
       for(const enemy of enemies){
-        const distance=dist(enemy,p);if(enemy.state!=='alive'||distance>radius)continue;
-        if(!enemy.boss){enemy.x+=(p.x-enemy.x)/Math.max(.1,distance)*.7;enemy.z+=(p.z-enemy.z)/Math.max(.1,distance)*.7;}
+        const distance=dist(enemy,centre);if(enemy.state!=='alive'||distance>radius)continue;
+        if(!enemy.boss){const pull=garden?1.9:.7;enemy.x+=(centre.x-enemy.x)/Math.max(.1,distance)*pull;enemy.z+=(centre.z-enemy.z)/Math.max(.1,distance)*pull;}
         if(p.evolution==='blizzard')this.applyFrost(enemy,2);
-        this.damage(enemy,(19+wind*12)*p.power*(p.evolution==='blizzard'?1.7:1),{weapon:'wind'});
+        this.damage(enemy,(19+wind*12)*p.power*(p.evolution==='blizzard'?1.7:1),{weapon:'wind',combo:garden?'seedCyclone':null});
       }
       if(wind>=4&&this.cooldowns.shield<=0){this.enemyBulletClear(p.x,p.z,radius,wind>=6?6:wind>=5?4:3);this.cooldowns.shield=2.8;}
       this.arsenal.windPulse();
@@ -515,6 +539,7 @@ export class BattleGame {
       this.bullets.push({id:this.nextId++,side:'player',weapon:shot.weapon,x:mx,z:mz,px:mx,pz:mz,vx:Math.cos(shot.angle)*speed,vz:Math.sin(shot.angle)*speed,radius:shot.weapon==='ice'?.17:.19,life:shot.routeShot?1.15:.95,damage:shot.damage*(shot.crit?p.critMultiplier:1),pierce:(shot.pierce??info?.pierce??(shot.rank>=2?2:0))+(p.perks.piercing||0),splash:((shot.splash??info?.splash??0)+(shot.weapon==='cannon'&&p.perks.explosive?.9:0))*p.area,ricochet:Boolean(p.perks.rebound)||shot.weapon==='cannon'&&shot.rank>=7,hit:new Set(),rank:shot.rank,crit:shot.crit,muzzle:shot.muzzle||0,wardBonus:shot.wardBonus||1,routeShot:Boolean(shot.routeShot)});
       this.stats.shots++;p.recoil=1;
       const bullet=this.bullets.at(-1);bullet.height=mount.height;bullet.age=0;
+      if(shot.scatter){bullet.scatter=true;bullet.life=.38;bullet.radius=.23;}
       this.emit('shot',{x:mx,z:mz,height:mount.height,angle:shot.angle,weapon:shot.weapon,rank:shot.rank,muzzle:shot.muzzle||0});
     }
   }
@@ -533,6 +558,7 @@ export class BattleGame {
       b.x+=b.vx*bulletDt;b.z+=b.vz*bulletDt;
       if(b.life<=0||Math.abs(b.x)>33||Math.abs(b.z)>33){b.removed=true;continue;}
       if(b.side==='enemy'){
+        if(this.arsenal.tactics.intercept(b)){b.removed=true;continue;}
         if(this.arsenal.formation.intercept(b)){b.removed=true;continue;}
         if(p.invuln<=0&&segmentHitsCircle(b.px,b.pz,b.x,b.z,p.x,p.z,energyCoreRadius(p)+b.radius)){
           this.hurt(b.damage);this.emit('impact',{x:b.x,z:b.z,row:0,size:1.3});b.removed=true;
@@ -545,6 +571,7 @@ export class BattleGame {
         b.hit.add(enemy.id);
         if(b.weapon==='ice'||p.evolution==='shatter'&&b.weapon==='cannon')this.applyFrost(enemy,b.weapon==='ice'?1:1);
         this.damage(enemy,b.damage,{weapon:b.weapon,critical:b.crit,projectile:true,splitShard:b.splitShard,wardBonus:b.wardBonus,routeShot:b.routeShot,angle:Math.atan2(b.vz,b.vx),combo:b.combo});
+        if(b.scatter&&!enemy.elite&&!enemy.boss&&this.playerTime>=(enemy.nextScatterPush||0)){enemy.nextScatterPush=this.playerTime+.35;const speed=Math.hypot(b.vx,b.vz)||1;enemy.x=clamp(enemy.x+b.vx/speed*.4,-27,27);enemy.z=clamp(enemy.z+b.vz/speed*.4,-27,27);}
         if(b.weapon==='cannon')this.arsenal.cannonImpact(enemy);
         if(b.splash){
           this.emit('effect',{row:p.evolution==='shatter'?1:0,x:enemy.x,z:enemy.z,size:b.splash*2.2});
@@ -715,7 +742,7 @@ export class BattleGame {
     if(edible&&distance<3.5&&!e.elite&&!e.boss){vx=-nx*.7;vz=-nz*.7;}
     else if(e.kind==='mage'||e.kind==='mortar'||e.kind==='eye'||e.kind==='herald'){
       if(distance>8){vx=nx;vz=nz;}else if(distance<5.5){vx=-nx*.75;vz=-nz*.75;}else{vx=-nz*.35;vz=nx*.35;}
-    }else if(distance>(e.boss?6.5:1.9)){vx=nx;vz=nz;}
+    }else if(distance>(e.boss?6.5:1.9)){vx=nx;vz=nz;if(e.flankSide&&distance>3&&distance<9){vx=nx*.6-nz*e.flankSide*.8;vz=nz*.6+nx*e.flankSide*.8;}}
     const speed=e.speed*(e.slow>0?.52:1)*(e.rooted>0?0:e.rootSlow>0?((e.elite||e.boss)?.8:.55):1);
     e.x=clamp(e.x+vx*speed*dt,-27,27);e.z=clamp(e.z+vz*speed*dt,-27,27);e.moving=Math.hypot(vx,vz);
     if(distance<e.radius*.5+energyCoreRadius(p)&&!edible)this.hurt(e.damage*.65);
@@ -745,6 +772,7 @@ export class BattleGame {
       if(w.tick<=0){
         if(hazardHits(w,p,coreRadius))this.hurt(w.damage);
         this.arsenal.formation.hazard(w);
+        this.arsenal.tactics.hazard(w);
         w.tick=(w.kind==='ring'||w.sweep)?.05:.7;
       }
       if(w.age>=w.delay+(w.duration||0))this.warnings.splice(i,1);
@@ -768,7 +796,7 @@ export class BattleGame {
     this.bullets=[];this.warnings=[];
     for(const e of this.entities){
       if(e.category==='enemy'&&e.state==='alive')e.ward=0;
-      if(e.category==='shrine'||e.category==='core')e.state='gone';
+      if(e.category==='shrine'||e.category==='core'||e.category==='blueprint')e.state='gone';
     }
     for(let i=0;i<24;i++){const a=this.rng(0,TAU),r=this.rng(2,9);this.prop('cart',clamp(this.player.x+Math.cos(a)*r,-25,25),clamp(this.player.z+Math.sin(a)*r,-25,25));}
     this.emit('victory',{x:this.player.x,z:this.player.z});

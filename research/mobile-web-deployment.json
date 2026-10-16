@@ -1,39 +1,47 @@
 {
   "title": "Riftbound mobile web",
-  "version": "V7",
+  "version": "V8",
   "url": "https://riftbound-mobile-v7.boydwilkinsontfo.chatgpt.site",
   "access": "public",
   "deployment_status": "succeeded",
   "project_id": "appgprj_6ad1e875f03c8191928ed3591daa32cd",
-  "site_version_id": "appgprj_6ad1e875f03c8191928ed3591daa32cd~appgver_9c075107b2588191b1ecf132ba0a71ab",
-  "site_source_commit": "546c1fb7aed7f82f5b6dcec9105dad76f6d54bb0",
-  "deployment_id": "appgdep_6ad1ef2a662881918c99aa440904594e",
+  "site_version_id": "appgprj_6ad1e875f03c8191928ed3591daa32cd~appgver_55cdf1716b948191adabea143b324d94",
+  "site_version_number": 2,
+  "site_source_commit": "c7065bd59c1607e4e8d118f660dba87f86cae4a2",
+  "deployment_id": "appgdep_6ad235269c808191bf9cecda52e70ce9",
+  "deployed_at": "2026-10-16T14:31:20.887340+00:00",
   "static_entry": "dist/index.html",
   "local_checkout": ".sites/riftbound-mobile",
   "checks": {
-    "tests": 122,
-    "translation_keys": 839,
+    "tests": 149,
+    "translation_keys": 916,
     "locales": 6,
     "phone_css_viewports": [
-      "375x667",
-      "393x852",
-      "852x393"
+      "393x852"
     ],
-    "safe_area_insets": "47 px notch, 34 px portrait bottom, 47 px landscape sides / 21 px bottom",
     "three_cards_fit": true,
-    "touch_joystick": "Chrome touch-emulated input moved the castle and collected resources",
-    "second_finger": "Pointer-down activation worked while movement finger remained down",
+    "manual_runs": "Two early builds; first elite completed in each. See research/v8-validation.json. Final reroll-history and core-card fixes were not rerun through a full expedition.",
+    "touch_regression": "V7 touch and safe-area verification is retained in mobile-web-deployment-v7.json; not repeated as a V8 physical-device test.",
     "physical_iphone_tested": false,
-    "public_network_probe": "Native deployment succeeded and public access was confirmed. Anonymous shell HTTP probe was blocked by Cloudflare; did not bypass the block."
+    "production_browser_verified": false,
+    "public_network_probe": "Native deployment succeeded; existing public audience preserved. This environment previously received Cloudflare block; no bypass or repeated alternate-client probes."
   },
   "hosting_build": {
     "entry_html_bytes": 1128,
-    "asset_bytes": 20191603,
+    "asset_bytes": 21905111,
+    "assets": 17,
     "largest_asset_bytes": 1735076
   },
+  "archive": {
+    "archive_format": "tar",
+    "sediment_file_id": "file_0000000002a08206afee9426d273ffd1",
+    "content_hash": "sha256:deb823ec1666d92cc37e5f12285526272aec851f8d6a9dd2c7708868466e5eb2",
+    "size_bytes": 21934080,
+    "file_count": 21
+  },
   "notes": [
-    "No server-side game state, analytics, or account required by this game. Saves remain in visitor browser.",
-    "Previewed and tested on localhost. Production browser or physical-device access is not claimed verified.",
-    "Sites packaging on Windows uses Git Bash in process PATH and TAR_OPTIONS=--force-local. Credentials are passed through hidden stdin and are not stored."
+    "No server-side game state, accounts, analytics or secrets in this Site. Saves remain in visitor browser.",
+    "All temporary browser viewport/focus overrides were restored after local QA.",
+    "Sites source commit was pushed before saving version; archive was built from that exact source state."
   ]
 }

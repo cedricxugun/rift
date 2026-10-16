@@ -12,6 +12,7 @@ export class RouteMechanics{
     const g=this.game,p=g.player;
     if(g.mode!=='playing'||entity.healing||entity.category==='shrine'||entity.category==='core')return;
     g.arsenal.formation.consume(entity);
+    g.arsenal.tactics.consume(entity);
     if(g.arsenal.has('salvageVortex')&&(entity.combatDrop||entity.category==='enemy')){
       p.salvageStacks=Math.min(5,p.salvageStacks+1);p.salvageTimer=3;
       if(p.salvageStacks===1||p.salvageStacks===5&&this.salvageCue<=g.playerTime){g.emit('tactic',{label:'Salvage rush',x:p.x,z:p.z});this.salvageCue=g.playerTime+2;}
@@ -69,6 +70,7 @@ export class RouteMechanics{
   timeBurst(){
     const g=this.game,p=g.player;
     g.arsenal.formation.timeBurst();
+    g.arsenal.tactics.timeBurst();
     if(g.arsenal.has('stormConduit')){
       const target=g.entities.filter(e=>e.category==='enemy'&&e.state==='alive'&&e.spawning<=0&&distance(e,p)<7).sort((a,b)=>distance(a,p)-distance(b,p))[0];
       if(target){g.arsenal.lightning(target,58*p.power,4,p,'stormConduit');g.enemyBulletClear(p.x,p.z,4,6);g.stats.comboTriggers++;g.emit('tactic',{label:'Temporal discharge',x:p.x,z:p.z});}

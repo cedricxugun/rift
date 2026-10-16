@@ -1,3 +1,5 @@
+import {BLUEPRINTS,learnedBlueprint} from './blueprints.js';
+import {canLearnWeapon} from './skill-graph.js';
 export const RARITIES={
   common:{name:'Common',color:'#78947c',weight:9},
   uncommon:{name:'Uncommon',color:'#3caa68',weight:6},
@@ -11,6 +13,7 @@ export const STAT_LABELS={routeGain:'Swallow charge efficiency',power:'Damage bo
 export function formatStat(stat,value){return stat==='speed'||stat==='maxHp'?String(Number(value.toFixed(2))):Math.round((stat==='power'?value-1:value)*100)+'%';}
 export function perkAmount(id,quality='common'){const amount=(PERKS[id].amount||0)*(QUALITY_MULTIPLIERS[quality]||1);return PERKS[id].stat==='maxHp'?Math.round(amount):amount;}
 export const PERKS={
+  ...BLUEPRINTS,
   brood:{name:'Brood banner',description:'Summon one additional guardian.',value:'+1',kind:'tactic',rarity:'rare',max:1,icon:'shield',requires:'summon',atlas:'allies',sprite:9},
   packTactics:{name:'Pack tactics',description:'Guardians move and attack 15% faster.',value:'+15%',kind:'stat',rarity:'uncommon',max:2,icon:'clock',requires:'summon'},
   deepRoots:{name:'Deep roots',description:'Gardens last 2 seconds longer.',value:'+2s',kind:'stat',rarity:'uncommon',max:2,icon:'leaf',requires:'roots'},
@@ -42,12 +45,13 @@ export const PERKS={
   execution:{name:'Judgment heart',description:'Three critical hits on one enemy call down a crushing strike.',kind:'core',rarity:'epic',max:1,icon:'target',minLevel:6},
 };
 
-export function eligiblePerks(player){
+export function eligiblePerks(player,options={}){
   const areaActive=player.modules.wind>0||player.modules.ember>0||player.modules.lightning>0||player.modules.roots>0||player.modules.summon>0||player.modules.cannon>=5||player.modules.ice>=5||player.perks.explosive||player.core==='singularity';
   return Object.keys(PERKS).filter(id=>{
     const perk=PERKS[id];
-    if((player.perks[id]||0)>=perk.max||player.rewardLevel<(perk.minLevel||0))return false;
-    if(perk.requires&&!player.modules[perk.requires])return false;
+    if((player.perks[id]||0)>=perk.max||player.rewardLevel<(perk.minLevel||0)&&!(options.blueprintReward&&perk.blueprint))return false;
+    if(perk.requires&&!player.modules[perk.requires]&&!(options.blueprintReward&&perk.blueprint&&canLearnWeapon(player,perk.requires)))return false;
+    if(perk.blueprint&&(player.modules[perk.requires]<(options.blueprintReward?0:perk.minRank)||learnedBlueprint(player,perk.family)))return false;
     if(perk.orbit&&player.modules.wind<2&&player.modules.lightning<3)return false;
     if(perk.kind==='core'&&player.core)return false;
     if(['frontShot','piercing','rebound','fragmentation'].includes(id)&&!player.modules.cannon&&!player.modules.ice)return false;
@@ -63,9 +67,9 @@ export function rewardCost(level){return level===0?18:level<5?44+level*14:130+(l
 
 export function weaponRarity(rank){return rank>=6?'epic':rank>=4?'rare':'uncommon';}
 
-export function applyPerk(game,id,quality='common'){
+export function applyPerk(game,id,quality='common',options={}){
   const p=game.player,perk=PERKS[id];
-  if(!perk||!eligiblePerks(p).includes(id))return false;
+  if(!perk||!eligiblePerks(p,options).includes(id))return false;
   p.perks[id]=(p.perks[id]||0)+1;
   const before=perk.stat?p[perk.stat]:null;
   if(perk.stat)p[perk.stat]+=perkAmount(id,quality);

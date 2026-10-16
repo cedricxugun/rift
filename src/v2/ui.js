@@ -6,12 +6,14 @@ import { MODIFICATIONS, workshopLevel, modificationCost } from './workshop.js';
 import { ROUTES, HOME_PLAYSTYLES, BRANCHES, MASTERY_NODES, EVOLUTION_ASPECTS, ownedWeapons, routeCapacity, shardCapacity, comboRecommendations } from './skill-graph.js';
 import { expeditionStage, BULLET_TIME } from './data.js';
 import { OPPORTUNITIES } from './expedition.js';
-import { CASTLE_STAGES, castleStage, weaponFrame, weaponAtlas } from './castle-appearance.js';
+import { CASTLE_STAGES, castleStage, weaponFrame, weaponAtlas,equippedArt } from './castle-appearance.js';
+
+import {BLUEPRINTS,learnedBlueprint,blueprintRankPreview,PACKS} from './blueprints.js';
 
 const tr=(key,options)=>escapeHtml(t(key,options));
 export const formatTime=seconds=>`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
 const thumb=(atlas,index,size=80)=>`<canvas data-atlas="${atlas}" data-sprite="${index}" width="${size}" height="${size}" aria-hidden="true"></canvas>`;
-const cityThumb=(route,level=1,size=150,modules=null,path='',core='')=>`<canvas data-city="${route}" data-level="${level}" data-modules="${modules?escapeHtml(JSON.stringify(modules)):''}" data-path="${path||''}" data-core="${core||''}" width="${size}" height="${size}" aria-hidden="true"></canvas>`;
+const cityThumb=(route,level=1,size=150,modules=null,path='',core='',perks={})=>`<canvas data-city="${route}" data-level="${level}" data-modules="${modules?escapeHtml(JSON.stringify(modules)):''}" data-path="${path||''}" data-core="${core||''}" data-perks="${escapeHtml(JSON.stringify(perks))}" width="${size}" height="${size}" aria-hidden="true"></canvas>`;
 const cityModules=player=>Object.fromEntries([...new Set([...(player.weaponOrder||[]),...Object.keys(player.modules)])].map(key=>[key,player.modules[key]]));
 const buffCopy={power:['Forge blessing','+18% attack damage'],haste:['Clockwork blessing','+12% attack speed'],speed:['Fleet blessing','+8% movement speed'],health:['Stone blessing','+15 maximum health and heal'],heal:['Restoration','Restore 30 health']};
 
@@ -46,7 +48,7 @@ export class BattleUI{
         if(route==='furnace')modules.ember=Math.min(5,modules.ember);
       }
       c.clearRect(0,0,canvas.width,canvas.height);
-      this.art.drawCityPreview(c,route,level,modules,canvas.width*.5,canvas.height*.87,canvas.width*.205,0,canvas.dataset.path||null,canvas.dataset.core||null);
+      this.art.drawCityPreview(c,route,level,modules,canvas.width*.5,canvas.height*.87,canvas.width*.205,0,canvas.dataset.path||null,canvas.dataset.core||null,JSON.parse(canvas.dataset.perks||'{}'));
     }
   }
 
@@ -55,7 +57,7 @@ export class BattleUI{
     this.root.querySelector('#upgrade-banner').hidden=true;this.root.querySelector('#announcement').hidden=true;
     const title=t('Riftbound').split(/[:：]/);
     const home=ROUTES[this.profile.route]||ROUTES.harbor,playstyle=HOME_PLAYSTYLES[this.profile.route]||HOME_PLAYSTYLES.harbor;
-    this.menu.innerHTML=`<header class="menu-top"><div class="brand">${icon('mouth')}<span>RIFTBOUND</span></div><div class="offline"><i></i>${document.documentElement.dataset.edition==='mobile-web'?tr('Mobile web edition'):tr('Offline edition')} · V7</div></header>
+    this.menu.innerHTML=`<header class="menu-top"><div class="brand">${icon('mouth')}<span>RIFTBOUND</span></div><div class="offline"><i></i>${document.documentElement.dataset.edition==='mobile-web'?tr('Mobile web edition'):tr('Offline edition')} · V8</div></header>
       <section class="menu-copy"><div class="eyebrow">${tr('Region I · Bellwind Meadow')}</div><h1><span>${escapeHtml(title[0])}</span>${title[1]?`<span>${escapeHtml(title[1])}</span>`:''}</h1><p class="subtitle">${tr('A city with an endless appetite.')}</p><p class="intro">${tr('Ten minutes to forge your build, then face the king.')}</p>
       <button class="home-selector" data-action="homes">${icon(home.icon)}<span><small>${tr('Traveling home')} · ${tr(playstyle.style)}</small><strong>${tr(playstyle.title)}</strong></span><b>${tr('Compare')} ›</b></button><button class="main-button" data-action="start">${icon('play')}<span>${tr('Begin expedition')}</span>${icon('arrow')}</button><div class="menu-actions"><button data-action="guide">${icon('book')}${tr('Combat manual')}</button><button data-action="garage">${icon('gear')}${tr('Workshop')}</button><button data-action="settings">${icon('gear')}${tr('Settings')}</button></div></section>
       <footer class="menu-bottom"><span>${tr('Move. Dodge. Devour. Evolve.')}</span><span>${this.profile.best?`${tr('Best score')} <b>${this.profile.best.toLocaleString()}</b>`:tr('The hollow kingdom is waking.')}</span></footer>`;
@@ -99,12 +101,17 @@ export class BattleUI{
     meter.querySelector('i').style.width=`${ratio*100}%`;meter.classList.toggle('charged',ratio>=1);
     const objective=this.objective(game);
     r['objective-title'].textContent=t(objective[0]);r['objective-text'].textContent=this.settings.tutorial?t(objective[1]):'';
-    const signature=JSON.stringify(p.modules)+p.evolution+p.path+p.core;
+    const signature=JSON.stringify(p.modules)+p.evolution+p.path+p.core+JSON.stringify(p.perks);
     if(signature!==this.lastBuild){
       this.lastBuild=signature;
       const owned=ownedWeapons(p);
-      r['weapons'].innerHTML=owned.map(key=>{const data=SKILLS[key];return `<button class="weapon-card active" data-action="weapon" data-value="${key}" style="--weapon-color:${data.color}"><span class="weapon-icon">${thumb(weaponAtlas(key),weaponFrame(key,p.modules[key],p.path),76)}</span><span class="weapon-copy"><strong>${tr(data.name)}</strong><small>${tr('Rank {{rank}}',{rank:p.modules[key]})}</small><span class="rank-dots">${Array.from({length:data.max},(_,i)=>`<i class="${i<p.modules[key]?'on':''}"></i>`).join('')}</span></span></button>`;}).join('')+Array.from({length:3-owned.length},()=>`<button class="weapon-card empty-slot" data-action="combinations" aria-label="${tr('Three weapon slots')}"><span>＋</span><small>${tr('Weapon slots {{current}}/{{max}}',{current:owned.length,max:3})}</small></button>`).join('');
+      r['weapons'].innerHTML=owned.map(key=>{const data=SKILLS[key],look=equippedArt(p,key);return `<button class="weapon-card active" data-action="weapon" data-value="${key}" style="--weapon-color:${data.color}"><span class="weapon-icon">${thumb(look.atlas,look.frame,76)}</span><span class="weapon-copy"><strong>${tr(data.name)}</strong><small data-charge-for="${key}">${tr('Rank {{rank}}',{rank:p.modules[key]})}</small><span class="rank-dots">${Array.from({length:data.max},(_,i)=>`<i class="${i<p.modules[key]?'on':''}"></i>`).join('')}</span></span></button>`;}).join('')+Array.from({length:3-owned.length},()=>`<button class="weapon-card empty-slot" data-action="combinations" aria-label="${tr('Three weapon slots')}"><span>＋</span><small>${tr('Weapon slots {{current}}/{{max}}',{current:owned.length,max:3})}</small></button>`).join('');
       this.paintThumbs(r['weapons']);
+    }
+    const kit=game.arsenal.tactics;
+    for(const node of r['weapons'].querySelectorAll('[data-charge-for]')){
+      const id=learnedBlueprint(p,node.dataset.chargeFor);if(!id)continue;
+      node.textContent=id==='fieldTurrets'?t('Turrets {{count}}/2',{count:kit.turrets.filter(e=>e.hp>0).length}):id==='windWheel'?t('Windwheel {{count}}/6',{count:kit.wheelFood}):id==='stormLance'?t('Lance charges {{count}}/3',{count:Math.floor(kit.lanceCharge)}):id==='rootMines'?t('Mines {{count}}',{count:game.arsenal.formation.gardens.filter(e=>e.life>0).length}):id==='wingedHive'?t('Drones {{count}}',{count:game.arsenal.formation.guardians.filter(e=>e.hp>0).length}):id==='mirrorWall'?t('Mirrors {{count}}/2',{count:kit.mirrors.length}):t(BLUEPRINTS[id].name);
     }
     const timeButton=r['time-button'],active=p.bulletTimeRemaining>0,cooling=p.bulletTimeCooldown>0;
     timeButton.querySelector('.time-countdown').textContent=active?`${p.bulletTimeRemaining.toFixed(1)}s`:cooling?`${Math.ceil(p.bulletTimeCooldown)}s`:t('Ready');
@@ -133,8 +140,12 @@ export class BattleUI{
     if(boss&&canSwallow(game.player,boss))return['The king can be devoured','Approach the broken king and swallow it to finish the battle.'];
     if(game.player.hp<game.player.maxHp*.45)return['Find a health pack','Defeat enemies for health packs, or swallow a green recovery pavilion.'];
     if(game.time<OPENING_TIME&&!game.rewardPending)return['Harvest awakening','Sweep through the stacked supplies. Fill your first skill bar before the guards arrive.'];
+    if(game.entities.some(e=>e.category==='blueprint'&&e.state==='alive'))return['Tactical blueprint','Outpost reward. Skill energy is not spent.'];
     if(game.entities.some(e=>e.category==='shrine'&&e.state==='alive'))return['Ruin ready','Follow the arrow to claim your skill. Extra energy is saved.'];
     if(game.time<OPENING_TIME)return['Learning the ropes','Breaks between attacks give you time to collect and choose.'];
+    if(game.expedition.active){const event=OPPORTUNITIES[game.expedition.active.type];return[event.name,event.description];}
+    const plan=learnedBlueprint(game.player,ROUTES[game.player.route].primary)||Object.keys(BLUEPRINTS).find(id=>game.player.perks[id]);
+    if(plan&&!game.entities.some(e=>(e.elite||e.boss)&&e.state==='alive'))return[BLUEPRINTS[plan].name,BLUEPRINTS[plan].hint];
     if(game.time<34)return['Keep moving','The glowing nexus is your hitbox. It grows with the city. Use bullet time to find a gap.'];
     if(game.stats.bulletTimes===0&&game.time<50)return['Bullet time','Press Space or right click for bullet time. On touch, tap the clock button.'];
     if(game.entities.some(e=>e.category==='core'&&e.state==='alive'))return['Absorb the core','Absorb the fallen core to choose a city improvement.'];
@@ -174,9 +185,9 @@ export class BattleUI{
   upgradeBanner(event){
     const node=this.root.querySelector('#upgrade-banner');
     const perk=event.perk?PERKS[event.perk]:null;
-    const mark=perk?(perk.atlas?thumb(perk.atlas,perk.sprite,80):icon(perk.icon)):(event.skill?thumb(weaponAtlas(event.skill),weaponFrame(event.skill,event.rank),80):thumb('characters',15,80));
+    const mark=perk?(perk.atlas?thumb(perk.atlas,perk.sprite,80):icon(perk.icon)):event.art?thumb(event.art.atlas,event.art.sprite,80):(event.skill?thumb(weaponAtlas(event.skill),weaponFrame(event.skill,event.rank),80):thumb('characters',15,80));
     const heading=perk?`${tr(RARITIES[event.quality||perk.rarity].name)} · ${tr(PERK_KINDS[perk.kind])}`:`${tr('Upgraded')} · ${tr('Weapon rank {{rank}}',{rank:event.rank||''})}`;
-    const detail=perk?.stat?tr('{{stat}}: {{before}} → {{after}}',{stat:t(STAT_LABELS[perk.stat]),before:formatStat(perk.stat,event.before),after:formatStat(perk.stat,event.after)}):tr(event.detail||'');
+    const detail=perk?.stat?tr('{{stat}}: {{before}} → {{after}}',{stat:t(STAT_LABELS[perk.stat]),before:formatStat(perk.stat,event.before),after:formatStat(perk.stat,event.after)}):tr(event.detail||'',event.params)+(event.extra?'<br>'+tr(event.extra,event.params):'');
     node.innerHTML=`<div class="upgrade-icon">${mark}</div><div><small>${heading}</small><h3>${tr(event.title||'Additional power')}</h3><p>${detail}</p></div><span class="upgrade-delta">${perk?`${event.stack}/${perk.max}`:`${event.previous??''} <b>→</b> ${event.rank??''}`}</span>`;
     this.paintThumbs(node);node.hidden=false;node.classList.remove('rank-pulse');void node.offsetWidth;node.classList.add('rank-pulse');
     clearTimeout(this.toastTimeout);this.toastTimeout=setTimeout(()=>node.hidden=true,3200);
@@ -218,7 +229,7 @@ export class BattleUI{
           modules[partners[0]]=(partners[0]==='cannon'?[0,2,4,6]:[0,1,3,5])[index];modules[partners[1]]=[0,0,2,4][index];
         }
         const equipment=Object.entries(modules).filter(([,rank])=>rank>0).map(([id,rank])=>`<span>${tr(SKILLS[id].name)} ${rank}</span>`).join('');
-        return `<article>${cityThumb(route,stage.level,220,modules,example==='current'?game.player.path:null,example==='current'?game.player.core:null)}<small>${tr('Mouth')} ${stage.level}</small><h3>${tr(stage.name)}</h3><p>${tr(stage.detail)}</p><div class="growth-loadout">${equipment}</div></article>`;
+        return `<article>${cityThumb(route,stage.level,220,modules,example==='current'?game.player.path:null,example==='current'?game.player.core:null,example==='current'?game.player.perks:{})}<small>${tr('Mouth')} ${stage.level}</small><h3>${tr(stage.name)}</h3><p>${tr(stage.detail)}</p><div class="growth-loadout">${equipment}</div></article>`;
       }).join('');
       wide=true;body=`<div class="eyebrow">${tr(HOME_PLAYSTYLES[route].title)}</div><h2>${tr('Castle and weapon growth')}</h2><p>${tr('Swallowing expands the chassis. Skill ranks upgrade its equipment. Both are visible on the same castle.')}</p><div class="growth-tabs">${examples.map(id=>`<button class="${id===example?'selected':''}" data-action="growth" data-value="${id}" aria-pressed="${id===example}">${tr(labels[id])}</button>`).join('')}</div><div class="growth-gallery">${stages}</div><p class="fine-print">${tr('Illustrated build examples. Extra weapon mounts do not grant skills; equipment appears only after you learn it.')}</p><div class="growth-rules"><p>${tr('Cannon: one barrel, twin barrels, then a heavy three-gun battery. Each gun fires from its own muzzle.')}</p><p>${tr('Summon gates grow from one bell to three. Seed racks grow into broad planters. Both share the castle with its other weapons.')}</p></div><button class="main-button" data-action="close">${tr('Close')}</button>`;
     }
@@ -232,28 +243,28 @@ export class BattleUI{
       const p=game.player,choices=game.choiceOffers;
       wide=true;
       const choosingBranch=choices.some(e=>e.path);
-      body=`<div class="eyebrow">${tr('Choose one of three')} · ${tr('Weapon slots {{current}}/{{max}}',{current:ownedWeapons(p).length,max:3})}</div><h2>${tr(choosingBranch?'Choose a branch':'Choose a skill')}</h2><p>${tr(choosingBranch?'This choice locks the other branch for this expedition.':'Tap a card to choose.')}</p><div class="draft-grid">${choices.map(e=>{
-        const perk=e.perk?PERKS[e.perk]:null,node=e.path?BRANCHES[e.path]:e.mastery?MASTERY_NODES[e.mastery]:null,rank=e.skill?p.modules[e.skill]:0,info=e.skill?rankInfo(e.skill,rank+1):null;
+      body=`<div class="eyebrow">${tr('Choose one of three')} · ${tr('Weapon slots {{current}}/{{max}}',{current:ownedWeapons(p).length,max:3})}</div><h2>${tr(game.blueprintDraft?'Choose a tactical blueprint':choosingBranch?'Choose a branch':'Choose a skill')}</h2><p>${tr(game.blueprintDraft?'Outpost reward. Skill energy is not spent.':choosingBranch?'This choice locks the other branch for this expedition.':'Tap a card to choose.')}</p><div class="draft-grid">${choices.map(e=>{
+        const rawPerk=e.perk?PERKS[e.perk]:null,perk=e.perk==='legionHeart'&&p.perks.wingedHive?{...rawPerk,atlas:'tactics',sprite:3,description:'During rally, one drone becomes a larger command drone with stronger, wider pulse strikes.'}:rawPerk,node=e.path?BRANCHES[e.path]:e.mastery?MASTERY_NODES[e.mastery]:null,rank=e.skill?p.modules[e.skill]:0,info=e.skill?blueprintRankPreview(p,e.skill,rank+1):null;
         const rarity=RARITIES[e.rarity||'common'];
         const title=node?.name||info?.title||perk?.name||buffCopy[e.buff][0];
-        let description=tr(node?.description||info?.detail||perk?.description||buffCopy[e.buff][1]);
+        let description=tr(node?.description||info?.detail||perk?.description||buffCopy[e.buff][1],info?.params)+(info?.extra?'<br>'+tr(info.extra,info.params):'');
         if(perk?.stat)description=tr('{{stat}}: {{before}} → {{after}}',{stat:t(STAT_LABELS[perk.stat]),before:formatStat(perk.stat,p[perk.stat]),after:formatStat(perk.stat,p[perk.stat]+perkAmount(e.perk,e.rarity))});
-        const art=e.path?thumb(routeAtlas,node.sprite,110):node?icon(node.icon):perk?.atlas?thumb(perk.atlas,perk.sprite,90):perk&&(perk.nexus||perk.kind==='core')?thumb('cores',(p.route==='furnace'?4:p.route==='frost'?8:0)+1,90):e.skill?thumb(weaponAtlas(e.skill),weaponFrame(e.skill,rank+1,p.path),90):perk?icon(perk.icon):thumb(BUFF_ART[e.buff].atlas,BUFF_ART[e.buff].sprite,90);
+        const art=e.path?thumb(routeAtlas,node.sprite,110):node?icon(node.icon):perk?.atlas?thumb(perk.atlas,perk.sprite,90):perk&&(perk.nexus||perk.kind==='core')?thumb('cores',(p.route==='furnace'?4:p.route==='frost'?8:0)+1,90):e.skill?thumb(learnedBlueprint(p,e.skill)?'tactics':weaponAtlas(e.skill),learnedBlueprint(p,e.skill)?BLUEPRINTS[learnedBlueprint(p,e.skill)].sprite:weaponFrame(e.skill,rank+1,p.path),90):perk?icon(perk.icon):thumb(BUFF_ART[e.buff].atlas,BUFF_ART[e.buff].sprite,90);
         const amount=perk?.stat?perkAmount(e.perk,e.rarity):0;
-        const value=e.skill?`${rank} → ${rank+1}`:perk?.stat?`+${['maxHp','speed'].includes(perk.stat)?Number(amount.toFixed(2)):Math.round(amount*100)}${['maxHp','speed'].includes(perk.stat)?'':'%'}`:perk?.value||'';
-        const stack=e.deferBranch?tr('Branch returns after two upgrades.'):e.path?`${tr('Mastery')} · ${tr(MASTERY_NODES[node.mastery].name)}`:e.mastery?tr('Mastery'):perk?tr('Stack {{current}}/{{max}}',{current:(p.perks[e.perk]||0)+1,max:perk.max}):e.skill?tr(SKILLS[e.skill].name):'';
+        const value=perk?.blueprint?tr('Form change'):e.skill?`${rank} → ${rank+1}`:perk?.stat?`+${['maxHp','speed'].includes(perk.stat)?Number(amount.toFixed(2)):Math.round(amount*100)}${['maxHp','speed'].includes(perk.stat)?'':'%'}`:perk?.value||'';
+        const stack=e.raiseSkill?tr('{{weapon}} {{before}} → 2 included',{weapon:t(SKILLS[e.raiseSkill].name),before:p.modules[e.raiseSkill]}):perk?.blueprint?tr('{{weapon}} · one blueprint',{weapon:t(SKILLS[perk.requires].name)}):e.deferBranch?tr('Branch returns after two upgrades.'):e.path?`${tr('Mastery')} · ${tr(MASTERY_NODES[node.mastery].name)}`:e.mastery?tr('Mastery'):perk?tr('Stack {{current}}/{{max}}',{current:(p.perks[e.perk]||0)+1,max:perk.max}):e.skill?tr(SKILLS[e.skill].name):'';
         const related=comboRecommendations(p,e.skill);
         if(e.perk==='explosive')description=tr('Explosion radius: {{before}} → {{after}}',{before:formatStat('speed',(CANNON_RANKS[p.modules.cannon]?.splash||0)*p.area),after:formatStat('speed',((CANNON_RANKS[p.modules.cannon]?.splash||0)+.9)*p.area)});
-        const kindLabel=e.path?'Branch':e.mastery?'Mastery':perk?.nexus?'Nexus modification':e.skill&&SKILLS[e.skill].typeLabel?SKILLS[e.skill].typeLabel:PERK_KINDS[e.kind||'weapon'];
-        const lastSlot=e.skill&&!rank&&ownedWeapons(p).length===2;
+        const kindLabel=perk?.blueprint?'Tactical blueprint':e.path?'Branch':e.mastery?'Mastery':perk?.nexus?'Nexus modification':e.skill&&SKILLS[e.skill].typeLabel?SKILLS[e.skill].typeLabel:PERK_KINDS[e.kind||'weapon'];
+        const lastSlot=(e.skill&&!rank||e.raiseSkill&&!p.modules[e.raiseSkill])&&ownedWeapons(p).length===2;
         const revealed=related.some(c=>c.unlocks)?related.filter(c=>c.unlocks):related.slice(0,1);
         const synergy=revealed.length&&!choosingBranch?`<small class="draft-synergy ${revealed.some(c=>c.unlocks)?'unlocks':''}">${revealed.map(combo=>`${combo.unlocks?tr('Unlocks {{name}}',{name:t(combo.name)}):tr(combo.name)}${combo.unlocks?'':'<br>'+Object.entries(combo.needs).map(([s,n])=>tr(SKILLS[s].name)+' '+(p.modules[s]||0)+'/'+n).join(' + ')}<br><b>${tr(COMBO_ROLES[combo.id])}</b>`).join('<hr>')}</small>`:e.perk==='precision'&&p.core==='execution'?`<small class="draft-synergy">${tr(PERKS.execution.name)}</small>`:lastSlot?`<small class="draft-synergy">${tr('Last weapon slot')}</small>`:'';
         return `<button type="button" class="draft-card" data-action="choose-shrine" data-value="${e.id}" style="--rarity-color:${rarity.color}"><span class="rarity-badge">${tr(rarity.name)}</span><span class="card-kind">${tr(kindLabel)}</span><span class="draft-icon">${art}</span><strong class="draft-title">${tr(title)}</strong><b class="draft-value">${value}</b><span class="draft-description">${description}</span><small class="draft-stack">${stack}${lastSlot&&related[0]?` · ${tr('Last weapon slot')}`:''}</small>${synergy}</button>`;
       }).join('')}</div>${choosingBranch?'':`<div class="draft-footer"><button class="secondary" data-action="reroll" ${p.rerolls<=0?'disabled':''}>${icon('refresh')}${tr(p.rerolls?'Reroll · {{count}} left':'No rerolls left',{count:p.rerolls})}</button></div>`}`;
     }
     if(kind==='weapon'){
-      const skill=SKILLS[extra],rank=game.player.modules[extra],list=WEAPON_RANKS[extra];
-      body=`<div class="eyebrow">${tr('Your build')}</div><h2>${tr(skill.name)} · ${rank}</h2><div class="guide-weapon-art">${thumb(weaponAtlas(extra),weaponFrame(extra,rank,game.player.path),110)}</div><div class="rank-list">${list.slice(1).map((r,i)=>`<div class="rank-row ${i+1===rank?'current':''} ${i+1<rank?'learned':''}"><b>${i+1}</b><span><strong>${tr(r.title)}</strong><p>${tr(r.detail)}</p></span>${i+1<=rank?icon('check'):''}</div>`).join('')}</div><div class="panel-actions"><button class="main-button" data-action="close">${tr('Resume')}</button></div>`;
+      const skill=SKILLS[extra],rank=game.player.modules[extra],list=WEAPON_RANKS[extra],blueprint=learnedBlueprint(game.player,extra),look=equippedArt(game.player,extra);
+      body=`<div class="eyebrow">${tr('Your build')}</div><h2>${tr(skill.name)} · ${rank}</h2><div class="guide-weapon-art">${thumb(look.atlas,look.frame,110)}</div><h3>${tr('Tactical blueprint')}</h3><p class="fine-print">${tr('Rank two opens blueprint cards. Outpost rewards can supply the skill and its prerequisite. Choose one blueprint per weapon.')}</p>${Object.entries(BLUEPRINTS).filter(([,b])=>b.requires===extra).map(([id,b])=>`<article class="blueprint-note ${id===blueprint?'selected':''}">${thumb('tactics',b.sprite,60)}<div><strong>${id===blueprint?'✓ ':''}${tr(b.name)}</strong><p>${tr(b.description)}</p></div></article>`).join('')}<div class="rank-list">${list.slice(1).map((r,i)=>{r=blueprintRankPreview(game.player,extra,i+1);return `<div class="rank-row ${i+1===rank?'current':''} ${i+1<rank?'learned':''}"><b>${i+1}</b><span><strong>${tr(r.title)}</strong><p>${tr(r.detail,r.params)}${r.extra?'<br>'+tr(r.extra,r.params):''}</p></span>${i+1<=rank?icon('check'):''}</div>`;}).join('')}</div><div class="panel-actions"><button class="main-button" data-action="close">${tr('Resume')}</button></div>`;
     }
     if(kind==='guide'){
       wide=true;const tips=[['Traveling home','Different homes turn swallowed resources into volleys, eruptions, or guardian ice.'],['Choose one of three','A skill ruin pauses the fight. Choose one card or spend a free reroll.'],['Three weapon slots','Three weapons maximum; the core has its own slot.'],['World opportunities','Clear wardens to open an outpost; moving wagons can be swallowed immediately.'],['Restoration supplies','Ordinary packs are scarce, expire after 40 seconds, and stop dropping above 85% integrity. Elite rewards remain guaranteed.'],['Bullet time','Slow the world for 4 seconds. You move and attack normally, but can still take damage. Cooldown: 24 seconds.'],['Ward','Visible purple wards block swallowing. Damage cracks them open.'],['City integrity','The visible energy nexus grows with the city. Its rim is the collision boundary.']];
@@ -281,8 +292,9 @@ export class BattleUI{
     }
     if(kind==='combinations'){
       const p=game.player,route=ROUTES[p.route];
-      const summary=`<article class="route-summary" style="--route-color:${route.color}">${cityThumb(p.route,p.level,150,cityModules(p),p.path,p.core)}<div><h3>${tr(route.name)}</h3><p>${tr(route.loop)}</p><strong>${tr(p.path?BRANCHES[p.path].name:'No branch chosen yet')}</strong><p>${tr(p.path?BRANCHES[p.path].description:route.description)}</p>${p.mastery?`<small>${tr('Mastery')} · ${tr(MASTERY_NODES[p.mastery].name)}</small>`:''}<small>${tr('Weapon slots {{current}}/{{max}}',{current:ownedWeapons(p).length,max:3})}</small></div></article>`;
-      body=body.replace('<div class="build-stats">',summary+`<button class="secondary growth-link" data-action="growth">${tr(CASTLE_STAGES[castleStage(p.level)].name)} · ${tr('Castle and weapon growth')} ›</button><p class="fine-print">${tr('Primary weapon upgrades also strengthen your charged attacks.')}${p.route==='harbor'?` ${tr('Loaded attacks seek visible threats and prioritize wards and elites.')}`:''}</p><div class="build-stats">`);
+      const summary=`<article class="route-summary" style="--route-color:${route.color}">${cityThumb(p.route,p.level,150,cityModules(p),p.path,p.core,p.perks)}<div><h3>${tr(route.name)}</h3><p>${tr(route.loop)}</p><strong>${tr(p.path?BRANCHES[p.path].name:'No branch chosen yet')}</strong><p>${tr(p.path?BRANCHES[p.path].description:route.description)}</p>${p.mastery?`<small>${tr('Mastery')} · ${tr(MASTERY_NODES[p.mastery].name)}</small>`:''}<small>${tr('Weapon slots {{current}}/{{max}}',{current:ownedWeapons(p).length,max:3})}</small></div></article>`;
+      const plans=Object.keys(BLUEPRINTS).filter(id=>p.perks[id]).map(id=>`<article class="blueprint-note">${thumb('tactics',BLUEPRINTS[id].sprite,60)}<div><strong>${tr(BLUEPRINTS[id].name)}</strong><p>${tr(BLUEPRINTS[id].description)}</p></div></article>`).join('');
+      body=body.replace('<div class="build-stats">',summary+plans+`<button class="secondary growth-link" data-action="growth">${tr(CASTLE_STAGES[castleStage(p.level)].name)} · ${tr('Castle and weapon growth')} ›</button><p class="fine-print">${tr('Primary weapon upgrades also strengthen your charged attacks.')}${p.route==='harbor'?` ${tr('Loaded attacks seek visible threats and prioritize wards and elites.')}`:''}</p><div class="build-stats">`);
     }
     if(kind==='result')body=body.replace('<div class="panel-actions">',`<p class="route-results">${tr(ROUTES[game.player.route].name)} · ${tr(game.player.path?BRANCHES[game.player.path].name:'No branch chosen yet')}<br>${tr('Route bursts')} ${game.stats.routeBursts} · ${tr('Supplies recovered')} ${game.stats.eventsCompleted}</p><div class="panel-actions">`);
     this.panel.innerHTML=`<div class="scrim"></div><section class="panel ${wide?'wide':''} ${['shrine','evolution','homes'].includes(kind)?'draft-panel':''}" role="dialog" aria-modal="true">${['evolution','shrine','result'].includes(kind)?'':close}${body}</section>`;
