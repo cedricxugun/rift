@@ -9,12 +9,15 @@ export const BULLET_TIME = { duration: 4, cooldown: 24, worldScale: .2 };
 export const OPENING_TIME = 22;
 export const ELITE_RECOVERY = 8;
 export const ELITE_TIMES = [90, 270, 450];
+export const ELITE_ROSTER = ['elite','eye','rootwarden','moth'];
 export const SKILLS = {
   cannon: { name: 'Cannon', color: '#eab377', icon: 'cannon', sprite: 12, max: 8 },
   ice: { name: 'Frost', color: '#96dcef', icon: 'ice', sprite: 14, max: 6 },
   wind: { name: 'Tempest', color: '#86d7bb', icon: 'wind', sprite: 13, max: 6 },
   lightning: { name: 'Lightning', color: '#c8a246', icon: 'bolt', atlas: 'arsenal', sprite: 0, max: 5 },
   ember: { name: 'Ember', color: '#d77b48', icon: 'flame', atlas: 'arsenal', sprite: 4, max: 5 },
+  summon: {name:'Acorn legion',typeLabel:'Summoning skill',color:'#75b690',icon:'shield',atlas:'allies',sprite:8,max:5},
+  roots: {name:'Briar gardens',typeLabel:'Ground skill',color:'#a4a85d',icon:'leaf',atlas:'allies',sprite:12,max:5},
 };
 export const BUFF_ART = {
   power: { atlas: 'characters', sprite: 15 }, haste: { atlas: 'props', sprite: 14 },
@@ -72,7 +75,21 @@ export const EMBER_RANKS = [
   {title:'Cluster burst',detail:'Fireballs scatter smaller explosions around their impact.',damage:66,shots:2,interval:1.85,radius:2},
   {title:'Phoenix rain',detail:'Three phoenix comets sweep down and ignite broad fire fields.',damage:84,shots:3,interval:1.75,radius:2.3},
 ];
-export const WEAPON_RANKS={cannon:CANNON_RANKS,ice:ICE_RANKS,wind:WIND_RANKS,lightning:LIGHTNING_RANKS,ember:EMBER_RANKS};
+export const SUMMON_RANKS=[null,
+  {title:'Acorn companions',detail:'Two guardians chase enemies and strike in melee. Fallen guardians return after 6 seconds.',count:2,damage:29,interval:1.05},
+  {title:'Shield patrol',detail:'Three guardians intercept enemy shots and cleave nearby enemies.',count:3,damage:35,interval:1},
+  {title:'Tree sentinels',detail:'Guardians grow into broad-bladed sentinels with wider melee attacks.',count:3,damage:48,interval:.9},
+  {title:'Marching grove',detail:'Four sentinels flank the enemy. Swallowing supplies rallies the entire legion.',count:4,damage:60,interval:.84},
+  {title:'Ancient vanguard',detail:'Five heavy guardians charge and cleave. Rally doubles their attack cadence.',count:5,damage:74,interval:.8},
+];
+export const ROOT_RANKS=[null,
+  {title:'Seed trail',detail:'Plant gardens along your path. Roots strike enemies entering them.',radius:2.2,damage:48,interval:2.1,life:6},
+  {title:'Snaring brambles',detail:'Wider gardens slow enemies. Lead pursuers through your planted path.',radius:2.6,damage:65,interval:1.9,life:6.5},
+  {title:'Blooming ambush',detail:'Roots erupt twice and briefly hold ordinary enemies in place.',radius:2.9,damage:83,interval:1.7,life:7},
+  {title:'Interwoven grove',detail:'Keep up to six gardens. Their overlapping blooms cover a broad escape route.',radius:3.2,damage:105,interval:1.5,life:8},
+  {title:'Worldroot awakening',detail:'Huge root gardens erupt repeatedly. Bullet time wakes every planted garden at once.',radius:3.6,damage:132,interval:1.35,life:8},
+];
+export const WEAPON_RANKS={cannon:CANNON_RANKS,ice:ICE_RANKS,wind:WIND_RANKS,lightning:LIGHTNING_RANKS,ember:EMBER_RANKS,summon:SUMMON_RANKS,roots:ROOT_RANKS};
 export const COMBOS = {
   salvageVortex:{name:'Salvage vortex',description:'Every third cannon volley creates a wind funnel that draws wreckage toward your mouth.',needs:{cannon:3,wind:2},color:'#6aaa9b',sprite:12},
   thunderBattery:{name:'Thunder battery',description:'Every third cannon burst conducts chain lightning.',needs:{cannon:3,lightning:2},color:'#d7b448',sprite:8},
@@ -81,6 +98,12 @@ export const COMBOS = {
   firestorm:{name:'Fire tornado',description:'A moving fire tornado scorches everything around the city.',needs:{wind:3,ember:2},color:'#de994c',sprite:11},
   shatterCircuit:{name:'Prismatic discharge',description:'Lightning striking frozen enemies launches eight ice shards.',needs:{ice:3,lightning:2},color:'#7abfd3',sprite:10},
   meteorForge:{name:'Meteor foundry',description:'Every third cannon burst calls down an extra heavy meteor.',needs:{cannon:3,ember:3},color:'#d07a46',sprite:13},
+  stormLegion:{name:'Storm legion',description:'Rallied guardians form electric links. Enemies crossing the formation take lightning damage.',needs:{summon:2,lightning:1},color:'#a6cba3',atlas:'allies',sprite:10},
+  livingGrove:{name:'Living grove',description:'Guardians focus enemies caught in gardens. Root blooms rally nearby guardians.',needs:{summon:2,roots:2},color:'#83b175',atlas:'allies',sprite:15},
+  frostGarden:{name:'Winter thicket',description:'Garden blooms apply frost and create shattering ice eruptions around rooted enemies.',needs:{roots:2,ice:2},color:'#8dcaca',atlas:'allies',sprite:14},
+  wildfireGarden:{name:'Wildfire orchard',description:'Fire ignites gardens. Burning gardens erupt in broad flame blasts instead of ordinary roots.',needs:{roots:2,ember:2},color:'#dca45e',atlas:'allies',sprite:14},
+  shatterBattery:{name:'Glacier battery',description:'Cannon hits on chilled enemies release a broad ice blast. A target can trigger it once per second.',needs:{cannon:2,ice:2},color:'#8bc6dd',sprite:10},
+  blizzardWard:{name:'Blizzard mantle',description:'Wind pulses freeze nearby enemies and erase two hostile shots. Fight along the edge of the cold ring.',needs:{wind:2,ice:2},color:'#9ed7cb',sprite:10},
 };
 export const COMBO_TACTICS={
   salvageVortex:'Collect combat wreckage to sustain up to 40% faster attacks for 3 seconds.',
@@ -90,8 +113,14 @@ export const COMBO_TACTICS={
   firestorm:'Stay near the crowd and pull enemies through your moving fire ring.',
   shatterCircuit:'Freeze the front line so lightning spreads shards through the pack.',
   meteorForge:'Lure enemies into the impact zone; frost helps keep fast enemies inside.',
+  stormLegion:'Swallow supplies or activate bullet time to rally. Move the legion so enemies cross its links.',
+  livingGrove:'Plant a retreat path and draw enemies into it; your guardians hunt the trapped targets.',
+  frostGarden:'Kite through your gardens to freeze pursuers and shatter the packed front line.',
+  wildfireGarden:'Keep enemies inside a garden until a fireball ignites it. Each bloom becomes an explosion.',
+  shatterBattery:'Chill the front enemy, then let your cannon break the packed line in one ice blast.',
+  blizzardWard:'Stay near enemies to catch them in the freezing pulse, then collect their wreckage between attacks.',
 };
-export const COMBO_ROLES={salvageVortex:'Salvage sustain',thunderBattery:'Ward breaker',thermalShock:'Interrupt burst',stormConduit:'Time counter',firestorm:'Close pressure',shatterCircuit:'Frozen chain',meteorForge:'Zone control'};
+export const COMBO_ROLES={salvageVortex:'Salvage sustain',thunderBattery:'Ward breaker',thermalShock:'Interrupt burst',stormConduit:'Time counter',firestorm:'Close pressure',shatterCircuit:'Frozen chain',meteorForge:'Zone control',stormLegion:'Formation damage',livingGrove:'Summon ambush',frostGarden:'Root and shatter',wildfireGarden:'Garden detonation',shatterBattery:'Packed-line breaker',blizzardWard:'Close-range defense'};
 export function activeCombos(modules){return Object.keys(COMBOS).filter(id=>Object.entries(COMBOS[id].needs).every(([skill,rank])=>modules[skill]>=rank));}
 export const ENEMIES = {
   beetle: { name: 'Copper scarab', description: 'Aimed shots. Keep moving across its aim.', sprite: 4, radius: .84, hp: 78, speed: 3.1, damage: 11, mass: 4, score: 35 },
@@ -101,8 +130,10 @@ export const ENEMIES = {
   golem: { name: 'Rootbound colossus', description: 'Calls a blast under your core. Leave the marked circle.', sprite: 9, radius: 1.92, hp: 420, speed: 1.25, damage: 17, mass: 14, score: 130 },
   elite: { name: 'The gilded hunter', description: 'Warded elite. Alternates volleys and charges; drops an evolution core.', sprite: 8, radius: 2.65, hp: 1800, speed: 1.3, damage: 18, mass: 55, score: 650 },
   eye: { name: 'The clockwork oracle', description: 'Slow rings hide fast aimed shots. Save a dash for the overlap.', sprite: 11, radius: 2.6, hp: 2200, speed: 1.15, damage: 17, mass: 60, score: 800 },
-  boss: { name: 'The hollow king', description: 'Three phases: fans, bombardment, spiral rings. Its final broken form can be swallowed.', sprite: 10, radius: 3.55, hp: 90000, speed: .8, damage: 20, mass: 260, score: 4500 },
+  boss: { name: 'The hollow king', description: 'Three phases: fans, bombardment, spiral rings. Its final broken form can be swallowed.', atlas:'duels',sprite: 8, radius: 3.55, hp: 90000, speed: .8, damage: 20, mass: 260, score: 4500 },
   herald: { name: 'Bell lantern keeper', description: 'Relays wards to nearby enemies. Defeat it to break all linked wards.', sprite: 7, radius: 1.08, hp: 240, speed: 1.7, damage: 12, mass: 10, score: 120 },
+  rootwarden: {name:'Briar gardener',description:'Root walls, sweeping branches and expanding shockwaves. Cross the gaps, then punish its recovery.',atlas:'duels',sprite:0,radius:2.7,hp:6000,speed:1.35,damage:19,mass:60,score:800},
+  moth: {name:'Bellwing matriarch',description:'Alternates wing sweeps, petal traps and a locked dive. Move sideways when it marks a lane.',atlas:'duels',sprite:4,radius:2.5,hp:6000,speed:1.7,damage:18,mass:60,score:800},
 };
 export const PROP_DEFS = {
   crate: { sprite: 8, radius: .29, mass: 2 }, barrel: { sprite: 9, radius: .38, mass: 3 },
@@ -123,8 +154,9 @@ export function encounterPace(time, cycleStart=OPENING_TIME) {
   const cycle = (time - cycleStart) % 48;
   return {
     rest: cycle >= 40, remaining: cycle >= 40 ? 48 - cycle : 40 - cycle,
-    interval: time < 90 ? 3 : time < 270 ? 2.6 : 2.2,
-    count: time < 90 ? 2 : time < 270 ? 3 : 4, cap: time < 90 ? 10 : time < 270 ? 16 : 24,
+    interval: time < 40 ? 3 : time < 90 ? 2.8 : time < 270 ? 2.4 : 2.1,
+    count: time < 40 ? 2 : time < 90 ? 3 : time < 270 ? 4 : 5,
+    cap: time < 40 ? 10 : time < 90 ? 14 : time < 270 ? 22 : 30,
   };
 }
 

@@ -9,6 +9,7 @@ import { RouteVisuals } from './route-visuals.js';
 import { BattleGuidance } from './guidance.js';
 import { CombatVFX } from './combat-vfx.js';
 import { castleStage } from './castle-appearance.js';
+import {FormationVisuals} from './formation-visuals.js';
 
 const TAU=Math.PI*2;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -21,6 +22,7 @@ export class BattleRenderer {
     this.routeVisuals=new RouteVisuals(this);
     this.swallowFeedback=new SwallowFeedback(this);
     this.guidance=new BattleGuidance(this);this.combatVFX=new CombatVFX(this);
+    this.formationVisuals=new FormationVisuals(this);
     this.camera={x:0,z:7};this.effects=[];this.particles=[];this.numbers=[];this.traces=[];
     this.shake=0;this.hurtFlash=0;this.time=0;this.timeTint=0;this.cityGrowth=null;
     this.resolutionScale=1;this.frameTotal=0;this.frameCount=0;this.fps=0;
@@ -64,12 +66,13 @@ export class BattleRenderer {
   project(x,z,height=0){return{x:this.width*.5+(x-this.camera.x)*this.scale,y:this.height*.57+(z-this.camera.z)*this.sy-height*this.scale};}
   screenToWorld(x,y){return{x:this.camera.x+(x-this.width*.5)/this.scale,z:this.camera.z+(y-this.height*.57)/this.sy};}
   visible(point,margin=170){return point.x>-margin&&point.x<this.width+margin&&point.y>-margin&&point.y<this.height+margin;}
-  clear(){this.effects=[];this.particles=[];this.numbers=[];this.traces=[];this.shake=0;this.timeTint=0;this.cityGrowth=null;this.arsenalVisuals.clear();this.routeVisuals.clear();this.combatVFX.clear();}
+  clear(){this.effects=[];this.particles=[];this.numbers=[];this.traces=[];this.shake=0;this.timeTint=0;this.cityGrowth=null;this.arsenalVisuals.clear();this.routeVisuals.clear();this.combatVFX.clear();this.formationVisuals.clear();}
 
   event(event){
     const e=event;
     this.arsenalVisuals.event(e);
     this.routeVisuals.event(e);this.combatVFX.event(e);
+    this.formationVisuals.event(e);
     if(e.type==='grow'&&castleStage(e.level)!==castleStage(e.previousLevel))this.cityGrowth={previousLevel:e.previousLevel||1,age:0,life:.65};
     if(e.type==='route-burst'){this.shake=Math.max(this.shake,.28);this.burst(e.x,e.z,ROUTES[e.route].color,18,1.25);}
     if(e.type==='meteor-impact'){this.effects.push({atlas:'skillEffects',row:0,x:e.x,z:e.z,size:e.size,age:0,life:.6});this.burst(e.x,e.z,'#ffc06c',e.phoenix?22:12,1.5);this.shake=Math.max(this.shake,e.phoenix?.4:.18);}
@@ -171,13 +174,16 @@ export class BattleRenderer {
     if(this.timeTint>.01){c.save();c.globalAlpha=this.timeTint*.12;c.fillStyle='#537d9c';c.fillRect(0,0,this.width,this.height);c.restore();}
     this.arsenalVisuals.ground(game);
     this.routeVisuals.ground(game);
+    this.formationVisuals.ground(game);
     const pos=this.project(p.x,p.z);
     if(!title)this.art.drawPortal(c,pos.x,pos.y,p.visualRadius*this.scale,this.time,{evolution:p.evolution,pulse:p.recoil*.3});
     this.combatVFX.warnings(game,false);
     this.drawTraces('ground',dt,worldDt);
     const actors=game.entities.filter(e=>e.state!=='gone'&&this.visible(this.project(e.x,e.z))).map(e=>({z:e.z,entity:e}));
+    for(const ally of game.arsenal.formation.guardians)if(ally.hp>0)actors.push({z:ally.z,ally});
     if(!title)actors.push({z:p.z,hero:true});actors.sort((a,b)=>a.z-b.z);
     for(const actor of actors){
+      if(actor.ally){this.formationVisuals.guardian(actor.ally,game);continue;}
       if(actor.hero){
         const hero=this.project(p.x,p.z);
         this.combatVFX.core(game);
@@ -206,6 +212,7 @@ export class BattleRenderer {
     this.drawParticles(dt);
     this.arsenalVisuals.air(game,dt);
     this.routeVisuals.air(game,dt);
+    this.formationVisuals.air(game,dt);
     this.combatVFX.air(game,dt,worldDt);
     this.combatVFX.warnings(game,true);
     this.drawBullets(game,'enemy');
@@ -252,7 +259,8 @@ export class BattleRenderer {
       const bounce=e.frozen>0?0:e.moving?Math.sin(e.age*11)*2:Math.sin(e.age*2+e.id)*1.3;
       const anticipation=e.intent==='windup'?Math.sin(e.stateTimer*25)*2:0;
       const options={moving:e.moving,flip:e.facing>0,alpha:Math.max(0,alpha),flash:e.flash/.085*.72,frozen:e.frozen>0,angle:anticipation*.01+angle};
-      if(['beetle','ram','mortar','mage'].includes(e.kind))this.art.drawEnemy(c,e.kind,v.x,foot+bounce,width,e.age+e.id*.2,options);
+      if(e.atlas==='duels')this.art.drawPose(c,'duels',e.sprite+(e.attackFlash>0||e.intent==='charge'?2:e.intent==='windup'?1:e.intent==='recover'?3:0),v.x,foot,width,options);
+      else if(['beetle','ram','mortar','mage'].includes(e.kind))this.art.drawEnemy(c,e.kind,v.x,foot+bounce,width,e.age+e.id*.2,options);
       else this.art.draw(c,'characters',e.sprite,v.x,foot+bounce,width,options);
       this.combatVFX.enemy(e,v,width);
       if(e.ward>0&&e.state==='alive'){

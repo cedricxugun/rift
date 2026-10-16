@@ -5,12 +5,18 @@ export const RARITIES={
   epic:{name:'Epic',color:'#9870cd',weight:1.6},
   legendary:{name:'Legendary',color:'#cf9c3b',weight:.55},
 };
-export const PERK_KINDS={stat:'Stat boost',barrage:'Barrage modifier',core:'Core ability',weapon:'Weapon upgrade'};
+export const PERK_KINDS={stat:'Stat boost',barrage:'Barrage modifier',core:'Core ability',weapon:'Weapon upgrade',tactic:'Tactical modifier'};
 export const QUALITY_MULTIPLIERS={common:1,uncommon:1.25,rare:1.5,epic:1.75};
 export const STAT_LABELS={routeGain:'Swallow charge efficiency',power:'Damage bonus',haste:'Attack speed',maxHp:'Maximum integrity',critChance:'Critical chance',critMultiplier:'Critical damage',speed:'Movement speed',energyGain:'Skill energy gain',massGain:'Mouth growth',healPower:'Healing effectiveness',area:'Area size'};
 export function formatStat(stat,value){return stat==='speed'||stat==='maxHp'?String(Number(value.toFixed(2))):Math.round((stat==='power'?value-1:value)*100)+'%';}
 export function perkAmount(id,quality='common'){const amount=(PERKS[id].amount||0)*(QUALITY_MULTIPLIERS[quality]||1);return PERKS[id].stat==='maxHp'?Math.round(amount):amount;}
 export const PERKS={
+  brood:{name:'Brood banner',description:'Summon one additional guardian.',value:'+1',kind:'tactic',rarity:'rare',max:1,icon:'shield',requires:'summon',atlas:'allies',sprite:9},
+  packTactics:{name:'Pack tactics',description:'Guardians move and attack 15% faster.',value:'+15%',kind:'stat',rarity:'uncommon',max:2,icon:'clock',requires:'summon'},
+  deepRoots:{name:'Deep roots',description:'Gardens last 2 seconds longer.',value:'+2s',kind:'stat',rarity:'uncommon',max:2,icon:'leaf',requires:'roots'},
+  germination:{name:'Hungry seeds',description:'Swallowing supplies speeds up the next garden and wakes nearby roots.',kind:'tactic',rarity:'rare',max:1,icon:'leaf',requires:'roots',atlas:'allies',sprite:14},
+  siegeStance:{name:'Siege stance',description:'After standing still for 0.45 seconds, cannon damage increases by 40%. Moving ends the bonus.',kind:'tactic',rarity:'rare',max:1,icon:'cannon',requires:'cannon'},
+  legionHeart:{name:'Legion heart',description:'During rally, one guardian becomes a giant captain with heavy sweeping strikes.',kind:'core',rarity:'epic',max:1,icon:'shield',requires:'summon',minLevel:4,atlas:'allies',sprite:6},
   nexusCapacitor:{name:'Nexus capacitor',description:'Swallowed resources grant 16% more home charge.',value:'+16%',kind:'stat',rarity:'uncommon',max:2,icon:'bolt',stat:'routeGain',amount:.16,nexus:true},
   nexusWard:{name:'Living core shell',description:'The nexus absorbs 18 damage. Its shell recharges every 12 seconds after a hit.',value:'18',kind:'barrage',rarity:'rare',max:1,icon:'shield',nexus:true,minLevel:3},
   might:{name:'Tempered steel',description:'All damage +12%.',value:'+12%',kind:'stat',rarity:'common',max:5,icon:'cannon',stat:'power',amount:.12},
@@ -37,7 +43,7 @@ export const PERKS={
 };
 
 export function eligiblePerks(player){
-  const areaActive=player.modules.wind>0||player.modules.ember>0||player.modules.lightning>0||player.modules.cannon>=5||player.modules.ice>=5||player.perks.explosive||player.core==='singularity';
+  const areaActive=player.modules.wind>0||player.modules.ember>0||player.modules.lightning>0||player.modules.roots>0||player.modules.summon>0||player.modules.cannon>=5||player.modules.ice>=5||player.perks.explosive||player.core==='singularity';
   return Object.keys(PERKS).filter(id=>{
     const perk=PERKS[id];
     if((player.perks[id]||0)>=perk.max||player.rewardLevel<(perk.minLevel||0))return false;

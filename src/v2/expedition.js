@@ -1,3 +1,5 @@
+import {ELITE_TIMES,BOSS_TIME} from './data.js';
+
 const clamp=n=>Math.max(-24,Math.min(24,n));
 const points=[{x:-15,z:-14},{x:16,z:-10},{x:-14,z:16},{x:15,z:15}];
 export const OPPORTUNITIES={
@@ -31,7 +33,8 @@ export class Expedition{
       if(active.life<=0){this.clear(true);return;}
       return;
     }
-    if(g.time<this.next||g.time>530||g.entities.some(e=>(e.elite||e.boss)&&e.state==='alive'))return;
+    const nextDuel=ELITE_TIMES[g.eliteIndex]??BOSS_TIME;
+    if(g.time<this.next||g.time>530||g.time<g.breatherUntil||nextDuel-g.time<=18||g.entities.some(e=>(e.elite||e.boss)&&e.state==='alive'))return;
     const type=['caravan','outpost','garden'][this.index%3];
     const choices=points.filter(point=>Math.hypot(point.x-p.x,point.z-p.z)>7).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z));
     const point=choices[0]||points[this.index%points.length];this.index++;

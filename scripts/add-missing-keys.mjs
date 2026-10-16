@@ -6,6 +6,7 @@ import { SKILLS, EVOLUTIONS, ENEMIES } from '../src/rules.js';
 import { v2SourceKeys, newKeys as v2Translations } from './add-v2-keys.mjs';
 import { sourceKeys as v63Keys, newKeys as v63Translations } from './add-v63-keys.mjs';
 import { sourceKeys as v65Keys, newKeys as v65Translations } from './add-v65-keys.mjs';
+import { sourceKeys as v7Keys, newKeys as v7Translations } from './add-v7-keys.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const LOCALES_DIR = path.join(ROOT, 'src/locales');
@@ -17,6 +18,7 @@ export const sourceKeys = [...new Set([
   ...v2SourceKeys,
   ...v63Keys,
   ...v65Keys,
+  ...v7Keys,
 ])].sort((a, b) => a.localeCompare(b, 'en'));
 
 // All locale additions and corrections live here. Generated JSON is never edited by hand.
@@ -904,7 +906,7 @@ export async function applyTranslations() {
   const prepared = [];
   // Validate every language before changing any generated file.
   for (const locale of locales) {
-    const translation = { ...newKeys[locale], ...v2Translations[locale], ...v63Translations[locale], ...v65Translations[locale] };
+    const translation = { ...newKeys[locale], ...v2Translations[locale], ...v63Translations[locale], ...v65Translations[locale], ...v7Translations[locale] };
     const missing = sourceKeys.filter(key => typeof translation[key] !== 'string' || !translation[key].trim());
     const extras = Object.keys(translation).filter(key => !expectedKeys.has(key));
     if (missing.length || extras.length) {

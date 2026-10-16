@@ -22,7 +22,7 @@ describe('V6 route and expedition contracts',()=>{
     }
   });
   test('a branch excludes its sibling and only offers its own successor',()=>{
-    const g=battlefield();g.player.rewardLevel=2;g.choiceOffers=g.rollSkillOffers();g.mode='choosing';
+    const g=battlefield();g.player.rewardLevel=4;g.choiceOffers=g.rollSkillOffers();g.mode='choosing';
     const choice=g.choiceOffers.find(e=>e.path==='harbor_lance');expect(choice).toBeDefined();
     expect(g.rerollShrine()).toBe(false);expect(g.chooseShrine(choice.id)).toBe(true);
     g.player.rewardLevel=7;g.coreOffered=true;g.player.core='overdrive';
@@ -74,7 +74,7 @@ describe('V6 route and expedition contracts',()=>{
     expect(g.shots.every(s=>s.damage===70&&s.pierce===4&&Math.abs(s.angle)<1)).toBe(true);
   });
   test('outposts unlock only when every guard is defeated and grant one physical reward',()=>{
-    const g=battlefield();g.expedition.index=1;g.expedition.next=0;g.time=80;g.expedition.update(0);
+    const g=battlefield();g.expedition.index=1;g.expedition.next=0;g.time=60;g.expedition.update(0);
     const active=g.expedition.active,cache=g.entities.find(e=>e.id===active.targets[0]);
     g.player.radius=3;expect(canSwallow(g.player,cache)).toBe(false);
     for(const id of active.guards.slice(0,2))g.damage(g.entities.find(e=>e.id===id),9999);

@@ -1,0 +1,28 @@
+{
+  "version": "V7",
+  "qaEnabled": false,
+  "artIssues": [],
+  "cssViewport": {
+    "width": 394,
+    "height": 852
+  },
+  "gameErrors": [],
+  "smallViewportAlsoChecked": {
+    "width": 314,
+    "height": 682,
+    "overflow": false
+  },
+  "screenshots": [
+    "60-final-battery-growth.jpg",
+    "61-final-legion-growth-phone.jpg"
+  ],
+  "manualRuns": [
+    "run-summary.json",
+    "garden-run-summary.json"
+  ],
+  "limitations": [
+    "No complete final-boss manual run",
+    "Localhost serves the same embedded HTML; direct file launch was not browser-tool verified",
+    "No physical iPhone performance test"
+  ]
+}

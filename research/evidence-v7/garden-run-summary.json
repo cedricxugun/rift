@@ -1,0 +1,49 @@
+{
+  "build": "final V7 candidate",
+  "end": {
+    "stats": {
+      "bossVolleys": 0,
+      "bulletTimes": 1,
+      "comboDamage": {
+        "frostGarden": 222.1008745370368
+      },
+      "comboHits": {
+        "frostGarden": 4
+      },
+      "comboTriggers": 0,
+      "damageByWeapon": {
+        "ice": 827.662394876543,
+        "roots": 813.8314192222219
+      },
+      "damageDealt": 1641.4938140987647,
+      "damageTaken": 6.1875,
+      "direct": 2,
+      "eaten": 95,
+      "elites": 0,
+      "enemyVolleys": 8,
+      "erasedBullets": 0,
+      "eventsCompleted": 0,
+      "guardianBlocks": 1,
+      "guardianIntercepts": 0,
+      "guardianStrikes": 0,
+      "guardiansLost": 0,
+      "healed": 22.1875,
+      "healthPacks": 0,
+      "hostileShots": 8,
+      "kills": 8,
+      "rallies": 0,
+      "rootBlooms": 14,
+      "routeBursts": 1,
+      "shots": 38,
+      "upgrades": 3
+    },
+    "time": "00:41"
+  },
+  "notes": [
+    "Normal movement and one normal reroll; no QA state mutations",
+    "Root 1 at 00:10, root 2 at 00:13, frost 2 and Winter Thicket at 00:32",
+    "Stopped moving to plant under visible enemies; saw ground ice eruption",
+    "At 00:41 UI reports frost 50%, gardens 50%, 4 combination hits",
+    "This is a short contrasting-build playtest, not a completed expedition"
+  ]
+}

@@ -1425,12 +1425,27 @@ body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::aft
 .home-pick { margin-top:auto;padding-top:5px;font-size:11px;font-weight:800;color:#457a6c; }
 .home-choice:focus-visible { outline:3px solid #c5a65e;outline-offset:3px; }
 .growth-link { min-height:40px;padding:9px 14px;font-size:12px;margin-top:8px; }
+.growth-tabs { display:flex;flex-wrap:wrap;gap:7px;margin-top:14px; }
+.growth-tabs button { min-height:38px;padding:8px 14px;border:1px solid #bac9a5;border-radius:10px;background:#f7f1dc;font-size:12px;color:#5b7355; }
+.growth-tabs button.selected { background:#ddebcf;border-color:#6b9c79;color:#31583d;font-weight:800; }
+.damage-ledger { display:grid;gap:8px;margin:12px 0 20px; }
+.damage-ledger > div { display:grid;grid-template-columns:100px 1fr 42px;gap:10px;align-items:center;font-size:12px; }
+.damage-ledger i { height:7px;border-radius:5px;background:linear-gradient(to right,#82ad84 var(--damage-share),#e2e4cc var(--damage-share)); }
+.damage-ledger b { text-align:right; }
+.build-target { display:flex;flex-direction:column;gap:7px;padding:16px;margin:14px 0;border:1px solid #a7c49b;border-radius:14px;background:#edf3da; }
+.build-target small { font-size:11px;color:#6d835b; }
+.build-target > strong { font-size:22px;color:#3d6547; }
+.build-target p { margin:0!important;font-size:12px!important; }
+.build-target b { font-size:12px;color:#467b57; }
+.other-combos summary { cursor:pointer;padding:16px 0;font-size:13px;color:#637a56; }
 .growth-gallery { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0; }
 .growth-gallery article { border:1px solid #d8d5b8;border-radius:12px;padding:8px;background:#f6f0d9; }
 .growth-gallery canvas { width:100%;height:auto;display:block; }
 .growth-gallery small { font-size:10px;color:#718368; }
 .growth-gallery h3 { margin:4px 0;font-size:15px; }
 .growth-gallery p,.growth-rules p { font-size:12px!important;line-height:1.5!important; }
+.growth-loadout { display:flex;flex-wrap:wrap;gap:3px;margin-top:7px; }
+.growth-loadout span { border-radius:4px;background:#e6e7cd;padding:2px 4px;font-size:10px;color:#526848; }
 @media(max-width:650px){.growth-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.growth-gallery h3{font-size:13px}.growth-gallery p{font-size:11px!important}.growth-gallery canvas{max-height:140px;object-fit:contain}}
 @media(max-width:650px){
   .home-grid { grid-template-columns:1fr;gap:8px;margin-top:12px; }

@@ -1,4 +1,5 @@
 import { energyCoreRadius, weaponMount } from './weapon-rig.js';
+import {warningAngle,warningRadius} from './hazards.js';
 
 const TAU = Math.PI * 2;
 
@@ -45,14 +46,20 @@ export class CombatVFX {
       c.save();c.lineJoin='round';c.lineCap='round';
       c.strokeStyle=top?'#7e304e':'#d06058';c.lineWidth=top?2.4:1.5;c.fillStyle=w.active?'#dc655540':'#d68a5322';
       if(w.kind==='line'){
-        const a=w.angle,nx=-Math.sin(a)*w.radius,nz=Math.cos(a)*w.radius,end={x:w.x+Math.cos(a)*w.length,z:w.z+Math.sin(a)*w.length};
+        const a=warningAngle(w),nx=-Math.sin(a)*w.radius,nz=Math.cos(a)*w.radius,end={x:w.x+Math.cos(a)*w.length,z:w.z+Math.sin(a)*w.length};
         const points=[[w.x+nx,w.z+nz],[end.x+nx,end.z+nz],[end.x-nx,end.z-nz],[w.x-nx,w.z-nz]];
         c.beginPath();points.forEach(([x,z],i)=>{const p=r.project(x,z);i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y);});c.closePath();
         if(top){c.strokeStyle='#fff1d8';c.lineWidth=5;c.stroke();c.strokeStyle='#983c50';c.lineWidth=2;c.stroke();}
         else c.fill();
         if(w.active&&top){const e=r.project(end.x,end.z);c.strokeStyle='#ce5268';c.lineWidth=w.radius*r.scale*1.5;c.beginPath();c.moveTo(v.x,v.y);c.lineTo(e.x,e.y);c.stroke();c.strokeStyle='#fff0d0';c.lineWidth=3;c.stroke();}
+      }else if(w.kind==='cone'){
+        const angle=warningAngle(w),arc=w.arc||Math.PI/2;
+        c.translate(v.x,v.y);c.scale(1,.62);c.beginPath();c.moveTo(0,0);c.arc(0,0,w.radius*r.scale,angle-arc*.5,angle+arc*.5);c.closePath();
+        if(!top)c.fill();
+        else{c.strokeStyle='#fff2d5';c.lineWidth=5;c.stroke();c.strokeStyle=w.active?'#c4504c':'#a26349';c.lineWidth=w.active?5:2;c.stroke();}
+        if(w.active&&top){c.globalAlpha=.5;c.strokeStyle='#ffd398';c.lineWidth=8;c.beginPath();c.arc(0,0,w.radius*r.scale*.8,angle-arc*.5,angle+arc*.5);c.stroke();}
       }else{
-        const ring=w.kind==='ring',radius=ring&&w.active?Math.min(w.radius,(w.age-w.delay)/w.duration*w.radius):w.radius;
+        const ring=w.kind==='ring',radius=warningRadius(w);
         c.beginPath();c.ellipse(v.x,v.y,Math.max(.1,radius*r.scale),Math.max(.1,radius*r.sy),0,0,TAU);
         if(!top&&!ring)c.fill();
         if(top){c.strokeStyle='#fff3dc';c.lineWidth=5;c.stroke();c.strokeStyle=w.active?'#c23d50':'#9d4b59';c.lineWidth=2.5;if(!w.active)c.setLineDash([8,5]);c.stroke();c.setLineDash([]);}

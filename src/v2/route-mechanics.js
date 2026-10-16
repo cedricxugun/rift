@@ -1,5 +1,6 @@
 import { routeCapacity, shardCapacity } from './skill-graph.js';
 import { withinCombatView } from './data.js';
+import {weaponMountCount} from './castle-appearance.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const TAU=Math.PI*2;
@@ -10,6 +11,7 @@ export class RouteMechanics{
   consume(entity){
     const g=this.game,p=g.player;
     if(g.mode!=='playing'||entity.healing||entity.category==='shrine'||entity.category==='core')return;
+    g.arsenal.formation.consume(entity);
     if(g.arsenal.has('salvageVortex')&&(entity.combatDrop||entity.category==='enemy')){
       p.salvageStacks=Math.min(5,p.salvageStacks+1);p.salvageTimer=3;
       if(p.salvageStacks===1||p.salvageStacks===5&&this.salvageCue<=g.playerTime){g.emit('tactic',{label:'Salvage rush',x:p.x,z:p.z});this.salvageCue=g.playerTime+2;}
@@ -48,7 +50,7 @@ export class RouteMechanics{
       const piercing=p.path==='harbor_lance',count=p.path==='harbor_salvo'?8:5;
       const angle=Math.atan2(targets[0].z-p.z,targets[0].x-p.x);
       burstAngle=angle;
-      for(let i=0;i<count;i++)g.shots.push({wait:i*.055,weapon:'cannon',angle:angle+(i-(count-1)/2)*(piercing?.045:.13),targetX:targets[0].x,targetZ:targets[0].z,spread:(i-(count-1)/2)*(piercing?.045:.13),damage:(piercing?48:28)*chargePower*(p.mastery==='harbor_breach'?1.35:1),rank:Math.max(1,p.modules.cannon),muzzle:i%2,pierce: piercing?(p.mastery==='harbor_breach'?5:3):0,splash:piercing?0:1.15,wardBonus:piercing?1.6:1,routeShot:true,crit:g.random()<p.critChance});
+      for(let i=0;i<count;i++)g.shots.push({wait:i*.055,weapon:'cannon',angle:angle+(i-(count-1)/2)*(piercing?.045:.13),targetX:targets[0].x,targetZ:targets[0].z,spread:(i-(count-1)/2)*(piercing?.045:.13),damage:(piercing?48:28)*chargePower*(p.mastery==='harbor_breach'?1.35:1),rank:Math.max(1,p.modules.cannon),muzzle:i%weaponMountCount(p,'cannon'),pierce: piercing?(p.mastery==='harbor_breach'?5:3):0,splash:piercing?0:1.15,wardBonus:piercing?1.6:1,routeShot:true,crit:g.random()<p.critChance});
       if(p.mastery==='harbor_recycle')p.routeCharge+=routeCapacity(p)*.3;
     }else{
       const chargePower=p.power*(1+Math.max(0,p.modules.ember-1)*.18);
@@ -66,9 +68,10 @@ export class RouteMechanics{
 
   timeBurst(){
     const g=this.game,p=g.player;
+    g.arsenal.formation.timeBurst();
     if(g.arsenal.has('stormConduit')){
       const target=g.entities.filter(e=>e.category==='enemy'&&e.state==='alive'&&e.spawning<=0&&distance(e,p)<7).sort((a,b)=>distance(a,p)-distance(b,p))[0];
-      if(target){g.arsenal.lightning(target,58*p.power,4);g.enemyBulletClear(p.x,p.z,4,6);g.stats.comboTriggers++;g.emit('tactic',{label:'Temporal discharge',x:p.x,z:p.z});}
+      if(target){g.arsenal.lightning(target,58*p.power,4,p,'stormConduit');g.enemyBulletClear(p.x,p.z,4,6);g.stats.comboTriggers++;g.emit('tactic',{label:'Temporal discharge',x:p.x,z:p.z});}
     }
     if(p.route!=='frost'||p.shards<=0)return;
     const stored=p.shards,piercing=p.path==='frost_lances',count=stored*(p.mastery==='frost_split'?2:1);

@@ -10,14 +10,14 @@ export function energyCoreRadius(player) {
 export function weaponMount(player, weapon, index = 0, angle = player.aim) {
   const radius = player.visualRadius || player.radius;
   const layout=CASTLE_LAYOUTS[castleFrame(player.route,player.level)];
-  const equipped=['cannon','ice','wind','lightning','ember'].filter(key=>player.modules[key]>0);
+  const equipped=[...new Set([...(player.weaponOrder||[]),...Object.keys(player.modules)])].filter(key=>player.modules[key]>0);
   const primary={harbor:'cannon',furnace:'ember',frost:'ice'}[player.route]||'cannon';
   const front=player.modules.cannon>0?'cannon':primary;
   const secondary=equipped.filter(key=>key!==front),slot=index%Math.max(1,weaponMountCount(player,weapon));
   const name=weapon===front?(slot===2?'crown':slot===1?'frontLeft':'frontRight'):secondary.indexOf(weapon)===0?'upperLeft':'upperRight';
   const anchor=layout[name],grade=weaponGrade(weapon,player.modules[weapon],player.path);
   const forward=name==='crown'?-1.1:name.startsWith('upper')?-.85:-.32;
-  const moduleWidth=(weapon==='cannon'?1+grade*.15:weapon==='ice'?.95+grade*.12:.75+grade*.15)*radius;
+  const moduleWidth=(weapon==='summon'?1.2+grade*.2:weapon==='roots'?1.15+grade*.15:weapon==='cannon'?1+grade*.15:weapon==='ice'?.95+grade*.12:.75+grade*.15)*radius;
   const pairedOffset=weapon!==front&&weaponMountCount(player,weapon)>1?(slot===0?.18:-.18)*radius:0;
   const baseX=player.x+(anchor[0]-layout.x)/layout.radius*radius+pairedOffset;
   const baseZ=player.z+forward*radius;

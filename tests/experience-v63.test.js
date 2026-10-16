@@ -28,7 +28,7 @@ describe('V6.3 harvest, weapon rig and guardian encounters',()=>{
     expect(new Set(layouts.map(JSON.stringify)).size).toBe(3);
   });
   test('postponing a branch grants a disclosed stat and cannot guarantee repeated primary ranks',()=>{
-    const g=arena();g.player.rewardLevel=2;g.player.modules.cannon=3;
+    const g=arena();g.player.rewardLevel=4;g.player.modules.cannon=3;
     g.choiceOffers=g.rollSkillOffers();g.mode='choosing';
     const defer=g.choiceOffers.find(e=>e.deferBranch);
     expect(defer.perk).toBeDefined();expect(defer.skill).toBeUndefined();

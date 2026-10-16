@@ -23,15 +23,18 @@ export const CASTLE_LAYOUTS = Array.from({length:12},(_,index)=>{
 });
 
 const WEAPON_BASES = {cannon:0,ice:3,wind:6,lightning:9,ember:12};
+export function weaponAtlas(weapon){return weapon==='summon'||weapon==='roots'?'allies':'equipment';}
 export function weaponGrade(weapon,rank=1,path=null) {
+  if(weapon==='summon'||weapon==='roots')return rank>=4?2:rank>=2?1:0;
   if(weapon==='cannon')return rank>=6?2:rank>=4||path==='harbor_lance'?1:0;
   if(weapon==='ice')return rank>=5||path==='frost_lances'?2:rank>=2?1:0;
+  if(weapon==='ember'&&['furnace_coals','furnace_eruption'].includes(path))return rank>=5?2:1;
   return rank>=5?2:rank>=3?1:0;
 }
-export function weaponFrame(weapon,rank,path) { return WEAPON_BASES[weapon]+weaponGrade(weapon,rank,path); }
+export function weaponFrame(weapon,rank,path) { return (weapon==='summon'?8:weapon==='roots'?12:WEAPON_BASES[weapon])+weaponGrade(weapon,rank,path); }
 export function weaponMountCount(player,weapon) {
   const rank=player.modules[weapon]||0;
   if(!rank)return 0;
-  if(weapon==='cannon')return rank>=6?3:rank>=2?2:1;
+  if(weapon==='cannon')return rank>=6||player.path==='harbor_salvo'?3:rank>=2?2:1;
   return weapon==='ember'&&player.route==='furnace'&&player.path==='furnace_eruption'?2:1;
 }

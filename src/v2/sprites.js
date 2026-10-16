@@ -1,5 +1,6 @@
-import { castleFrame, castleStage, CASTLE_LAYOUTS, weaponFrame, weaponMountCount } from './castle-appearance.js';
+import { castleFrame, castleStage, CASTLE_LAYOUTS, weaponFrame, weaponAtlas, weaponMountCount } from './castle-appearance.js';
 import { weaponMount } from './weapon-rig.js';
+import {activeCombos,COMBOS} from './data.js';
 
 const DEPTH = 0.6;
 const TAU = Math.PI * 2;
@@ -147,7 +148,7 @@ export class PaintedArt {
     this.heroPose = { muzzles: [{ x: 0, y: 0 }], core: { x: 0, y: 0 }, atlasIndex: 0, atlasName: 'characters' };
     this.muzzlePoints = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
 
-    for (const name of ['characters', 'props', 'effects', ...['walk','arsenal','travelers','routes','cores','castles','equipment','skillEffects'].filter(name=>images[name])]) {
+    for (const name of ['characters', 'props', 'effects', ...['walk','arsenal','travelers','routes','cores','castles','equipment','skillEffects','allies','duels'].filter(name=>images[name])]) {
       const image = images[name];
       const width = image?.naturalWidth || image?.width || 0;
       const height = image?.naturalHeight || image?.height || 0;
@@ -172,7 +173,7 @@ export class PaintedArt {
         rowEdges = atlasRowEdges(coverage, 0.09);
       }
       const columnRowEdges = Array.from({ length: 4 }, () => rowEdges);
-      if (pixels && ['characters','props','arsenal','travelers','routes','cores','castles','equipment'].includes(name)) {
+      if (pixels && ['characters','props','arsenal','travelers','routes','cores','castles','equipment','allies','duels'].includes(name)) {
         for (let col = 0; col < 4; col += 1) {
           const coverage = new Uint16Array(height);
           const columnLeft = Math.floor((col * width) / SHEET_SIZE);
@@ -411,16 +412,16 @@ export class PaintedArt {
     ctx.restore();
   }
 
-  drawModule(ctx,index,x,y,width,angle=0,flash=0){
-    const frame=this.frames.equipment?.[index];if(!frame)return;
-    const gridWidth=this.sheets.equipment.width/4,gridHeight=this.sheets.equipment.height/4;
-    const directional=index<6,rotor=index>=6&&index<=8;
+  drawModule(ctx,index,x,y,width,angle=0,flash=0,atlas='equipment'){
+    const frame=this.frames[atlas]?.[index];if(!frame)return;
+    const gridWidth=this.sheets[atlas].width/4,gridHeight=this.sheets[atlas].height/4;
+    const directional=atlas==='equipment'&&index<6,rotor=atlas==='equipment'&&index>=6&&index<=8;
     const pivot=directional?[.28,.52]:rotor?[.5,.5]:[.5,.87];
     const scale=width/gridWidth;
     const cx=(frame.sx+frame.sw*.5-(index%4+pivot[0])*gridWidth)*scale;
     const foot=(frame.sy+frame.sh-(Math.floor(index/4)+pivot[1])*gridHeight)*scale;
     ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-    this.draw(ctx,'equipment',index,cx,foot,frame.sw*scale,{shadow:false,flash:flash*.22});
+    this.draw(ctx,atlas,index,cx,foot,frame.sw*scale,{shadow:false,flash:flash*.22});
     ctx.restore();
   }
 
@@ -437,15 +438,23 @@ export class PaintedArt {
     }
     // Rear equipment is painted first; front batteries read as part of the same chassis.
     mounts.sort((a,b)=>a.base.y-b.base.y);
+    for(const id of activeCombos(player.modules)){
+      const weapons=Object.keys(COMBOS[id].needs),a=mounts.find(m=>m.weapon===weapons[0]),b=mounts.find(m=>m.weapon===weapons[1]);
+      if(!a||!b)continue;
+      ctx.save();ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.base.x,a.base.y);ctx.quadraticCurveTo((a.base.x+b.base.x)*.5,Math.max(a.base.y,b.base.y)+player.visualRadius*scale*.24,b.base.x,b.base.y);
+      ctx.strokeStyle='#5c674e';ctx.lineWidth=4;ctx.stroke();ctx.strokeStyle=player.buildPulse>0?COMBOS[id].color:'#c7ae73';ctx.lineWidth=2;ctx.stroke();
+      if(player.buildPulse>0){ctx.globalAlpha=player.buildPulse*.65;ctx.strokeStyle='#fff5c8';ctx.lineWidth=1;ctx.stroke();}ctx.restore();
+    }
     for(const {weapon,rank,flash,angle,mount,base,v} of mounts){
-      const index=weaponFrame(weapon,rank,player.path),width=mount.moduleWidth*scale;
+      const displayRank=weapon==='summon'&&player.core==='legionHeart'?Math.max(4,rank):rank;
+      const index=weaponFrame(weapon,displayRank,player.path),width=mount.moduleWidth*scale;
       this.drawModule(ctx,15,base.x,base.y+width*.04,width*.73);
       if(weapon==='cannon'||weapon==='ice'){
         const tip=project(mount.tipX,mount.tipZ,mount.height),a=Math.atan2(tip.y-v.y,tip.x-v.x);
         const projectedWidth=Math.hypot(tip.x-v.x,tip.y-v.y)/.58;
         this.drawModule(ctx,index,v.x-Math.cos(a)*flash*width*.07,v.y-Math.sin(a)*flash*width*.07,projectedWidth,a,flash);
       }else if(weapon==='wind')this.drawModule(ctx,index,v.x,v.y,width,reducedMotion?0:time*(rank>=3?3.8:2),flash);
-      else this.drawModule(ctx,index,base.x,base.y,width,0,flash);
+      else this.drawModule(ctx,index,base.x,base.y,width,weapon==='summon'&&flash?Math.sin(flash*14)*.06:0,flash,weaponAtlas(weapon));
     }
     if(player.path==='frost_aegis'){
       const v=project(player.x-player.visualRadius*1.2,player.z-.1,player.visualRadius*.25);
@@ -453,14 +462,22 @@ export class PaintedArt {
     }
   }
 
-  drawCityPreview(ctx,route,level,modules,x,y,radius,time=0,path=null){
-    const player={x:0,z:0,route,level,modules,radius,visualRadius:radius,aim:0,path};
+  drawCityPreview(ctx,route,level,modules,x,y,radius,time=0,path=null,core=null){
+    const player={x:0,z:0,route,level,modules,weaponOrder:Object.keys(modules),radius,visualRadius:radius,aim:0,path,core};
     const project=(wx,wz,h=0)=>({x:x+wx,y:y+wz*.62-h});
     const base=route==='furnace'?4:route==='frost'?8:0;
     this.drawPortal(ctx,x,y,radius,time);
     this.draw(ctx,'cores',base+castleStage(level),x,y+radius*.3,radius*.9,{shadow:false});
     this.drawHero(ctx,x,y,radius,time,{route,level,modules,portal:false});
     this.drawWeaponRig(ctx,player,project,1,time,{},true);
+  }
+
+  drawPose(ctx,atlas,index,x,footY,width,options={}){
+    const frame=this.frames[atlas]?.[index];if(!frame)return;
+    const gridWidth=this.sheets[atlas].width/4,gridHeight=this.sheets[atlas].height/4,scale=width/(gridWidth*.92);
+    const cx=x+(frame.sx+frame.sw*.5-(index%4+.5)*gridWidth)*scale;
+    const foot=footY+(frame.sy+frame.sh-(Math.floor(index/4)+.96)*gridHeight)*scale;
+    this.draw(ctx,atlas,index,cx,foot,frame.sw*scale,options);
   }
 
   drawEnemy(ctx, kind, x, footY, width, time, options = {}) {

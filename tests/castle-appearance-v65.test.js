@@ -4,6 +4,14 @@ import {castleFrame,weaponFrame,weaponMountCount} from '../src/v2/castle-appeara
 import {weaponMount} from '../src/v2/weapon-rig.js';
 
 describe('the visible castle grows with its actual loadout',()=>{
+  test('learning a later companion does not move an existing gate to the opposite platform',()=>{
+    const g=new BattleGame(7);g.start(7,{},'furnace');g.upgrade('summon');
+    const before=weaponMount(g.player,'summon');g.upgrade('lightning');
+    expect(weaponMount(g.player,'summon').bay).toBe(before.bay);
+    expect(weaponMount(g.player,'lightning').bay).not.toBe(before.bay);
+    g.upgrade('summon');expect(weaponMount(g.player,'summon').bay).toBe(before.bay);
+    expect(g.player.weaponOrder).toEqual(['ember','summon','lightning']);
+  });
   test('body expansion follows swallowed mass while learning another element preserves its home',()=>{
     const g=new BattleGame(65);g.start(65,{},'furnace');g.drainEvents();
     const small=castleFrame(g.player.route,g.player.level);

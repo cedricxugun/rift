@@ -1,0 +1,57 @@
+{
+  "version": "V7",
+  "generator": "built-in image_gen",
+  "style_reference": "H:\\claudeprj\\apihub\\gameidea\\assets\\characters.png",
+  "assets": [
+    {
+      "source": "H:\\claudeprj\\apihub\\gameidea\\assets\\allies-v7.png",
+      "runtime": "H:\\claudeprj\\apihub\\gameidea\\assets\\allies-v7.webp",
+      "prompt": "H:\\claudeprj\\apihub\\gameidea\\assets\\allies-v7.prompt.txt",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "rgba_identical": true,
+      "bytes": 1472714,
+      "sha256": "20d215780433c7002070a900ebd5666a7009d376980326c14518875c9b151750",
+      "generated_source": "C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-cf2492fb-0a44-4423-b1ff-fbd7996c8ccd.png",
+      "frames": {
+        "0-3": "Acorn companion poses",
+        "4-7": "Tree sentinel poses",
+        "8-10": "Single, double, triple bell gates",
+        "11": "Conjuring puff",
+        "12-14": "Seed rack grades",
+        "15": "Ground root garden"
+      }
+    },
+    {
+      "source": "H:\\claudeprj\\apihub\\gameidea\\assets\\duels-v7.png",
+      "runtime": "H:\\claudeprj\\apihub\\gameidea\\assets\\duels-v7.webp",
+      "prompt": "H:\\claudeprj\\apihub\\gameidea\\assets\\duels-v7.prompt.txt",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "rgba_identical": true,
+      "bytes": 1735076,
+      "sha256": "15474fe6218ebefc9558a2a61d1d45fed330f71c9bcd977dfccf592cdb15198e",
+      "generated_source": "C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-aaa773dc-3600-488b-9cc0-85396ebd1b79.png",
+      "frames": {
+        "0-3": "Briar gardener poses",
+        "4-7": "Bellwing matriarch poses",
+        "8-11": "Hollow king poses",
+        "12-15": "Root eruption animation"
+      }
+    }
+  ],
+  "castle_body": "Existing four structural stages in castle-growth-v65; new learned hardware shares their physical mounts. Secondary platforms retain learning order.",
+  "derivation": "Lossless WebP encoding with exact transparent RGB preservation; no pixel editing after generation."
+}

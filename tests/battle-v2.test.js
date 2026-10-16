@@ -54,7 +54,7 @@ describe('Riftbound battle regressions',()=>{
     const game=new BattleGame(44);game.start();game.entities=[];game.nextSpawn=999;game.rewardCooldown=999;game.player.modules.ice=6;game.player.x=0;game.player.z=0;
     const boss=game.spawnEnemy('boss',{x:7,z:0,hp:100000,maxHp:100000,ward:0,maxWard:0,spawning:0,cooldown:0,speed:0});
     for(let i=0;i<360;i++){game.applyFrost(boss,3);game.update(1/60,{x:0,z:0});}
-    expect(game.stats.bossVolleys).toBeGreaterThan(0);
+    expect(game.drainEvents().some(e=>e.type==='enemy-cast'||e.type==='enemy-shot')).toBe(true);
   });
   test('defeats drop an actual health pack and healing requires collecting it',()=>{
     const game=new BattleGame(5);game.start();game.entities=[];game.nextSpawn=999;game.rewardCooldown=999;game.supplyTime=999;game.player.x=0;game.player.z=0;game.player.hp=40;
@@ -109,7 +109,7 @@ describe('Riftbound battle regressions',()=>{
     const game=new BattleGame(10);game.start();game.entities=[];game.player.modules.ice=2;game.player.modules.ember=2;game.arsenal.refresh();
     const target=game.spawnEnemy('golem',{x:0,z:0,hp:1000,maxHp:1000,burn:2,spawning:0});
     const neighbor=game.spawnEnemy('golem',{x:1,z:0,hp:1000,maxHp:1000,spawning:0});
-    game.applyFrost(target,1);expect(target.hp).toBe(935);expect(neighbor.hp).toBe(935);expect(game.stats.comboTriggers).toBe(1);
+    game.applyFrost(target,1);expect(target.hp).toBe(859);expect(neighbor.hp).toBe(859);expect(game.stats.comboTriggers).toBe(1);
     target.burn=2;game.applyFrost(target,1);expect(game.stats.comboTriggers).toBe(1);
   });
   test('a meteor lands before its fire field deals continuing damage',()=>{

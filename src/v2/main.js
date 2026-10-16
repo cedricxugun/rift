@@ -22,6 +22,8 @@ import cores from '../../assets/nexus-integrated-v63.webp';
 import castles from '../../assets/castle-growth-v65.webp';
 import equipment from '../../assets/weapon-modules-v65.webp';
 import skillEffects from '../../assets/skill-effects-v65.webp';
+import allies from '../../assets/allies-v7.webp';
+import duels from '../../assets/duels-v7.webp';
 
 async function boot(){
   let saved={};try{saved=JSON.parse(localStorage.getItem('riftbound-v2')||'{}');}catch{}
@@ -33,7 +35,7 @@ async function boot(){
   document.body.classList.toggle('reduced-motion',settings.reducedMotion);
   const loading=document.getElementById('loading');loading.querySelector('p').textContent=t('Preparing the illustrated world...');
   let loaded=0;const images={};
-  const imageSources={characters,props,effects,terrain,walk,arsenal,travelers,routes,cores,castles,equipment,skillEffects};
+  const imageSources={characters,props,effects,terrain,walk,arsenal,travelers,routes,cores,castles,equipment,skillEffects,allies,duels};
   await Promise.all(Object.entries(imageSources).map(([key,src])=>new Promise((resolve,reject)=>{
     const image=new Image();image.onload=()=>{images[key]=image;loaded++;loading.querySelector('.load-track i').style.width=`${loaded/Object.keys(imageSources).length*100}%`;resolve();};image.onerror=()=>reject(new Error('Asset decode failed: '+key));image.src=src;
   })));
@@ -67,6 +69,11 @@ async function boot(){
       if(event.type==='route-burst')audio.play(event.route==='harbor'?'harborBurst':event.route==='furnace'?'furnaceBurst':'frostRelease',1);
       if(event.type==='route-charge')audio.play('routeCharge',.7);
       if(event.type==='guardian-block')audio.play('guardianBlock',1);
+      if(event.type==='guardian-strike')audio.play('impact',.4);
+      if(event.type==='guardian-arrive')audio.play('routeCharge',.75);
+      if(event.type==='legion-rally')audio.play('branchChoice',.6);
+      if(event.type==='garden-bloom')audio.play(event.burning?'impact':event.frost?'freeze':'wind',.65);
+      if(event.type==='duel')ui.announce('Duel begins','The crowd retreats. Defeat this guardian before the next wave.',true);
       if(event.type==='opportunity'){ui.announce(OPPORTUNITIES[event.kind].name,'An opportunity nearby');audio.play('opportunity',.8);}
       if(event.type==='opportunity-open')ui.announce('Outpost liberated');
       if(event.type==='opportunity-complete'){ui.announce('Supplies secured');audio.play('chest',.8);}
@@ -122,6 +129,7 @@ async function boot(){
       if(!purchaseModification(profile,value))return;
       persist();audio.play('rankup',1);ui.showPanel('garage',game);
     }else if(['settings','guide','weapon','combinations','garage','homes','growth'].includes(name)){
+      if(name==='growth'&&ui.modal==='growth'){ui.showPanel('growth',game,value);return;}
       parentPanel=['pause','result','homes','combinations'].includes(ui.modal)?ui.modal:null;
       if(['playing','feast'].includes(game.mode)){returnMode=game.mode;game.mode='paused';}
       input.clear();audio.setPaused(true);ui.showPanel(name,game,value);

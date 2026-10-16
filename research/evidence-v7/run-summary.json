@@ -1,0 +1,67 @@
+{
+  "build": "V7 intermediate candidate, normal controls, no qa flag",
+  "duel": [
+    {
+      "enemies": 1,
+      "ordinary": 0,
+      "special": [
+        "elite"
+      ],
+      "time": "01:30"
+    },
+    {
+      "enemies": 0,
+      "ordinary": 0,
+      "special": [],
+      "time": "01:41"
+    }
+  ],
+  "end": {
+    "stats": {
+      "bossVolleys": 0,
+      "bulletTimes": 2,
+      "comboDamage": {
+        "stormLegion": 2302.470637462957
+      },
+      "comboHits": {
+        "stormLegion": 68
+      },
+      "comboTriggers": 0,
+      "damageByWeapon": {
+        "ember": 4655.647927017388,
+        "furnace": 28.53145046296252,
+        "lightning": 1093.1442166820932,
+        "summon": 11380.964292491984
+      },
+      "damageDealt": 17158.28788665445,
+      "damageTaken": 45.75,
+      "direct": 2,
+      "eaten": 200,
+      "elites": 1,
+      "enemyVolleys": 18,
+      "erasedBullets": 0,
+      "eventsCompleted": 1,
+      "guardianBlocks": 0,
+      "guardianIntercepts": 7,
+      "guardianStrikes": 139,
+      "guardiansLost": 0,
+      "healed": 63.75,
+      "healthPacks": 1,
+      "hostileShots": 44,
+      "kills": 43,
+      "rallies": 17,
+      "rootBlooms": 0,
+      "routeBursts": 12,
+      "shots": 135,
+      "upgrades": 10
+    },
+    "time": "01:42"
+  },
+  "notes": [
+    "Furnace + summon 2 + lightning 1 formed Storm Legion at 00:29",
+    "Observed swallow-triggered rally and live damage ledger",
+    "First elite: 01:30 to 01:41; HP 124 -> 88; core collected at 01:42, armory chosen, medkit restored 30",
+    "Latest star-link, wave density, rank gates, map-event lead-in and gallery changes were built after this run; this record is not proof of final balance",
+    "Did not manually finish the final boss or benchmark a physical iPhone"
+  ]
+}
