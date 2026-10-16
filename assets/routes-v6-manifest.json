@@ -1,0 +1,190 @@
+{
+  "tool": "built-in image_gen",
+  "file": "assets/routes-v6.png",
+  "image_property": "routes",
+  "atlas_name": "routes",
+  "dimensions": {
+    "width": 1247,
+    "height": 1261,
+    "columns": 4,
+    "rows": 4
+  },
+  "transparency": "RGBA with true transparent alpha; the first twelve city frames preserve an empty open-front U-shaped mouth.",
+  "style": "Approved original living-home artwork: Ghibli-inspired fine brown cel outlines, broad matte fills, humble wood/plaster/slate, one restrained shadow tone.",
+  "style_references": [
+    "assets/travelers.png",
+    "assets/characters.png"
+  ],
+  "approved_style_manifest": "assets/cel-art-manifest.json",
+  "generated_source": "C:/Users/user/.codex/generated_images/01a1335a-d818-7563-8a51-0cd6412b9da1/exec-48531adc-e669-46f3-87ed-bb1b8872950e.png",
+  "generation_history": [
+    {
+      "source": "C:/Users/user/.codex/generated_images/01a1335a-d818-7563-8a51-0cd6412b9da1/exec-ec00666b-0667-4deb-b01d-7b6f4fe5df5f.png",
+      "transparent_background": true,
+      "input_references": [
+        "assets/travelers.png",
+        "assets/characters.png"
+      ],
+      "prompt": "Use case: a focused derivative game sprite atlas, editing the approved living-city designs.\nImage 1 is the APPROVED traveler artwork: keep its exact fine brown linework, broad matte cel fills, humble white-plaster and wooden living homes, muted slate roofs, organic feet and plants, and OPEN FRONT U-shaped silhouettes. Image 2 is an additional approved character/prop style reference. Create route-specific variations in this same original Ghibli-inspired hand-drawn cel-animation world. Do not introduce a new style. No glossy 3D render, no ornate European palaces, gilding, tiny filigree, metallic highlights, watercolor noise on characters or overly detailed miniature buildings.\n\nOutput ONE genuinely transparent PNG atlas with EXACTLY FOUR EQUAL COLUMNS and FOUR EQUAL ROWS, sixteen separate complete sprites. No labels, text, symbols that look like writing, grid lines, background, ground tile or cast shadows. Every sprite must stay wholly inside its cell with clear transparent gutters. Same near-isometric three-quarter view and camera scale. Use warm natural colors, thin brown outlines, large calm flat color areas and one restrained shadow tone.\n\nTHE FIRST TWELVE SPRITES ARE LIVING CITIES. In every one of these twelve cells, keep an OPEN FRONT U / CRESCENT body: a small rear house with two short outer wings, leaving a LARGE EMPTY TRANSPARENT mouth around cell center x=.52, y=.80, horizontal radius .24, vertical radius .145. The front center remains open all the way to the bottom. No body, floor, grass, bridge, shadow, colored circle, fire, shield or glass may fill that central hole. This empty space is for a runtime black portal below. Cannons, vents, crystals, feet and barriers must remain on the rear or OUTER wings. Keep aperture position/size consistent within each route row.\n\nEXACT CELL ORDER:\nROW 1 / HARBOR ROUTE, indices 0–3, grey-blue nautical cloth accents and humble timber:\n0 HARBOR BASE: a small warm-white dockside living cottage, muted slate-blue roof, a simple folded sail/rope, two SHORT matte dark-iron cannon mounts on its outer arms.\n1 HARBOR LANCE: same family and empty mouth, TWO noticeably LONG HEAVY matte charcoal cannon barrels pointing outward from the left and right outer arms. The long barrels are its defining silhouette; no barrel may cross into the mouth or into neighboring cells.\n2 HARBOR SALVO: same family and empty mouth, broad compact THREE-BARREL cannon banks mounted on the outer arms, visibly wider and more spread than the lance version. Keep muzzle circles large and readable.\n3 CHARGED HARBOR: same U-shaped dockside home in a ready-to-release charged state, strongly readable pale warm light just INSIDE its outward-facing cannon muzzles, slightly braced gun mounts and a raised little cloth pennant. No outgoing projectile or explosion.\n\nROW 2 / FURNACE ROUTE, indices 4–7, muted terracotta, warm amber and smoke:\n4 FURNACE BASE: a squat friendly clay-hearth living home, one warm orange stove opening in its REAR house, two little side chimneys and wooden outer feet, empty U mouth.\n5 FURNACE COALS: broader low smoldering hearth form, a long warm coal tray on the REAR structure, low ember glow, squat heat-storage clay pods on the outer sides. No flames in the empty portal.\n6 FURNACE ERUPTION: same home, TWO or THREE wide upward/outward angled burst VENTS on its outer shoulders, broader silhouette, contained warm orange vent interiors. No full explosion or fire covering the opening.\n7 CHARGED FURNACE: braced hearth home with brighter warm-white/amber fire visible through the rear stove door and small contained ember marks above the two side chimneys. Keep the central U opening completely transparent.\n\nROW 3 / FROST ROUTE, indices 8–11, pale blue, off-white plaster and muted leaves:\n8 FROST BASE: a modest living greenhouse home with simple pale-blue glass roof planes, warm window-eyes and a few blue flowers, empty front U mouth.\n9 FROST AEGIS: same home protected by broad rounded ICE PETALS arranged only around its OUTER rear and side rim, clear leaf-like shield silhouettes, no solid bubble or ice across the center opening.\n10 FROST LANCES: same home with TWO long slender pale-blue CRYSTAL LANCE projectors growing outward from the left and right outer arms, readable long pointed silhouette, no ornate gemstone decoration.\n11 CHARGED FROST: greenhouse home with restrained bright pale-blue/white light along its roof frames and outward ice projectors, small snow marks around the OUTSIDE edge only, never in the empty central mouth.\n\nROW 4 / LANDMARKS, indices 12–15; these four are complete standalone objects and do not need U mouths:\n12 FRIENDLY MOVING SUPPLY WAGON: a warm wooden little wagon with a faded cloth canopy, bread/supply crates, sturdy wheels, two friendly window/lantern eyes, a small green cloth sign. No person riding it.\n13 GUARDED OUTPOST: a small rustic wooden/plaster lookout shelter on a low simple base, a short banner pole and a clearly readable SMALL VIOLET WARD shield/arc at the front. Not a huge castle. Keep the ward within the cell.\n14 RECOVERY GARDEN: a simple green-roofed shelter, turquoise healing well and broad leafy planters, with one plain green/ivory HEART sign. Calm, welcoming and clearly distinct from a hostile outpost.\n15 OPENED SUPPLY CACHE: a humble wooden supply chest/crate with its lid OPEN, neatly visible warm bread/food, rolled cloth and a few green herbs. No treasure pile or ornate gilding.\n\nAll sixteen must look as if drawn by the same animation artist as the approved reference. Fully preserve true transparent alpha around objects, generous gutters, complete silhouettes, exact 4x4 ordering and the large clear mouth in all first twelve sprites."
+    },
+    {
+      "source": "C:/Users/user/.codex/generated_images/01a1335a-d818-7563-8a51-0cd6412b9da1/exec-48531adc-e669-46f3-87ed-bb1b8872950e.png",
+      "transparent_background": true,
+      "input_references": [
+        "C:/Users/user/.codex/generated_images/01a1335a-d818-7563-8a51-0cd6412b9da1/exec-ec00666b-0667-4deb-b01d-7b6f4fe5df5f.png"
+      ],
+      "prompt": "Precise correction to this transparent 4x4 game atlas. Keep the approved hand-drawn cel style, all colors, object designs, all cell positions, transparent alpha, open U mouths and every other cell unchanged.\n\nChange ONLY ROW ONE, COLUMN THREE (zero-based cell 2), the harbor_salvo city:\nEach outer cannon bank currently shows FOUR muzzle holes. Each bank must have EXACTLY THREE distinct muzzle openings, arranged as a clear triangular THREE-BARREL cluster: one opening above and two below. Make the three dark round muzzles broad and easy to count. There are two banks, one on the left outer arm and one on the right outer arm, so exactly three holes per bank and six total in this cell. Keep their size/position, the house, sail, chimneys, arms, feet and completely transparent mouth unchanged. Do not add a central cannon.\n\nDo not change the other fifteen cells. No extra objects, text, grid, background, shadows or white/black rectangle. Preserve true transparency. This is one local barrel-count correction, not a redesign."
+    }
+  ],
+  "cells": [
+    {
+      "index": 0,
+      "name": "harbor",
+      "row": 0,
+      "column": 0,
+      "kind": "open-front city"
+    },
+    {
+      "index": 1,
+      "name": "harbor_lance",
+      "row": 0,
+      "column": 1,
+      "kind": "open-front city"
+    },
+    {
+      "index": 2,
+      "name": "harbor_salvo",
+      "row": 0,
+      "column": 2,
+      "kind": "open-front city"
+    },
+    {
+      "index": 3,
+      "name": "harbor_charged",
+      "row": 0,
+      "column": 3,
+      "kind": "open-front city"
+    },
+    {
+      "index": 4,
+      "name": "furnace",
+      "row": 1,
+      "column": 0,
+      "kind": "open-front city"
+    },
+    {
+      "index": 5,
+      "name": "furnace_coals",
+      "row": 1,
+      "column": 1,
+      "kind": "open-front city"
+    },
+    {
+      "index": 6,
+      "name": "furnace_eruption",
+      "row": 1,
+      "column": 2,
+      "kind": "open-front city"
+    },
+    {
+      "index": 7,
+      "name": "furnace_charged",
+      "row": 1,
+      "column": 3,
+      "kind": "open-front city"
+    },
+    {
+      "index": 8,
+      "name": "frost",
+      "row": 2,
+      "column": 0,
+      "kind": "open-front city"
+    },
+    {
+      "index": 9,
+      "name": "frost_aegis",
+      "row": 2,
+      "column": 1,
+      "kind": "open-front city"
+    },
+    {
+      "index": 10,
+      "name": "frost_lances",
+      "row": 2,
+      "column": 2,
+      "kind": "open-front city"
+    },
+    {
+      "index": 11,
+      "name": "frost_charged",
+      "row": 2,
+      "column": 3,
+      "kind": "open-front city"
+    },
+    {
+      "index": 12,
+      "name": "supply_wagon",
+      "row": 3,
+      "column": 0,
+      "kind": "landmark"
+    },
+    {
+      "index": 13,
+      "name": "guarded_outpost",
+      "row": 3,
+      "column": 1,
+      "kind": "landmark"
+    },
+    {
+      "index": 14,
+      "name": "recovery_garden",
+      "row": 3,
+      "column": 2,
+      "kind": "landmark"
+    },
+    {
+      "index": 15,
+      "name": "opened_supply_cache",
+      "row": 3,
+      "column": 3,
+      "kind": "landmark"
+    }
+  ],
+  "draw_hero_contract": {
+    "route_values": [
+      "harbor",
+      "furnace",
+      "frost"
+    ],
+    "route_bases": {
+      "harbor": 0,
+      "furnace": 4,
+      "frost": 8
+    },
+    "path_indices": {
+      "harbor_lance": 1,
+      "harbor_salvo": 2,
+      "furnace_coals": 5,
+      "furnace_eruption": 6,
+      "frost_aegis": 9,
+      "frost_lances": 10
+    },
+    "charged_indices": {
+      "harbor": 3,
+      "furnace": 7,
+      "frost": 11
+    },
+    "charge_threshold": 0.98,
+    "charge_range": [
+      0,
+      1
+    ],
+    "invalid_path": "A branch from another route is ignored and the route base is used.",
+    "precedence": "A valid route with a loaded routes atlas overrides legacy evolution/core body selection. Without routes, legacy travelers/characters rendering remains available.",
+    "attachments": "Existing module attachments remain. Native harbor cannons, furnace hearths and frost structures suppress only redundant copies of the same module.",
+    "muzzle_contract": "Existing cannon-rank rules remain: one display muzzle below rank 2, two at ranks 2–5, three at rank 6+. Display points follow visual sway; gameplay coordinates are not modified.",
+    "reduced_motion": "Body movement, steam drift and motes become static when reduced motion is enabled.",
+    "landmarks": "Use art.draw(ctx, 'routes', 12..15, x, footY, width, options)."
+  },
+  "calibration": "Mouth, core and muzzle anchors are stored in ROUTE_LAYOUT in src/v2/sprites.js, expressed against nominal source cells. Actual alpha-bounded source rectangles are cached once. A 2% left gutter on index 10 removes an adjacent-cell ice sliver."
+}

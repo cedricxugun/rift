@@ -1,0 +1,368 @@
+{
+  "version": "EA 0.9.14.1",
+  "engine": "6000.0.63f1 executable; 6000.0.51f1 serialized assets",
+  "metadata": "31.1 recognized by Cpp2IL",
+  "date": "2026-10-14",
+  "modules": 27,
+  "majorModuleFamilies": 20,
+  "crewModuleFamilies": 7,
+  "upgradeDefinitions": 458,
+  "upgradeTypes": {
+    "cooldown": 108,
+    "automatic": 130,
+    "active": 100,
+    "legendary": 40,
+    "special": 80
+  },
+  "growth": {
+    "source": "sharedassets4.assets#4854",
+    "newModuleLevels": [
+      3,
+      12,
+      24
+    ],
+    "firstTenRequirements": [
+      30,
+      50,
+      70,
+      85,
+      100,
+      110,
+      120,
+      130,
+      140,
+      150
+    ],
+    "eventualRequirementCap": 500
+  },
+  "vehicles": [
+    {
+      "source": "sharedassets0.assets#53090",
+      "name": "PlayerVeh_Tank_Rank[0]",
+      "hp": 120,
+      "speed": 15,
+      "tier": 0,
+      "swallowTier": 0,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "sharedassets0.assets#53091",
+      "name": "PlayerVeh_Tank_Rank[1]",
+      "hp": 180,
+      "speed": 16,
+      "tier": 1,
+      "swallowTier": 1,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "sharedassets0.assets#53092",
+      "name": "PlayerVeh_Tank_Rank[2]",
+      "hp": 300,
+      "speed": 17,
+      "tier": 2,
+      "swallowTier": 2,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "sharedassets0.assets#53093",
+      "name": "PlayerVeh_Tank_Rank[3]",
+      "hp": 500,
+      "speed": 18,
+      "tier": 3,
+      "swallowTier": 3,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "sharedassets0.assets#53094",
+      "name": "PlayerVeh_Tower_Rank[0]",
+      "hp": 60,
+      "speed": 19,
+      "tier": 0,
+      "swallowTier": 0,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "sharedassets0.assets#53095",
+      "name": "PlayerVeh_Tower_Rank[1]",
+      "hp": 80,
+      "speed": 20,
+      "tier": 1,
+      "swallowTier": 1,
+      "slots": 4,
+      "collectionRadius": 20
+    },
+    {
+      "source": "sharedassets0.assets#53096",
+      "name": "PlayerVeh_Tower_Rank[2]",
+      "hp": 130,
+      "speed": 22,
+      "tier": 2,
+      "swallowTier": 2,
+      "slots": 4,
+      "collectionRadius": 25
+    },
+    {
+      "source": "sharedassets0.assets#53097",
+      "name": "PlayerVeh_Tower_Rank[3]",
+      "hp": 200,
+      "speed": 25,
+      "tier": 3,
+      "swallowTier": 3,
+      "slots": 4,
+      "collectionRadius": 30
+    },
+    {
+      "source": "sharedassets0.assets#53100",
+      "name": "PlayerVeh_Spider_0",
+      "hp": 150,
+      "speed": 12,
+      "tier": 0,
+      "swallowTier": 0,
+      "slots": 4,
+      "collectionRadius": 10
+    },
+    {
+      "source": "sharedassets4.assets#4779",
+      "name": "PlayerVeh_0",
+      "hp": 100,
+      "speed": 16,
+      "tier": 0,
+      "swallowTier": 0,
+      "slots": 4,
+      "collectionRadius": 10
+    },
+    {
+      "source": "sharedassets4.assets#4780",
+      "name": "VehicleBaseStats_V1",
+      "hp": 100,
+      "speed": 15,
+      "tier": 0,
+      "swallowTier": 0,
+      "slots": 4,
+      "collectionRadius": 10
+    },
+    {
+      "source": "resources.assets#266567",
+      "name": "PlayerVeh_Spider_Rank[0]",
+      "hp": 50,
+      "speed": 19,
+      "tier": 0,
+      "swallowTier": 0,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "resources.assets#266568",
+      "name": "PlayerVeh_Spider_Rank[1]",
+      "hp": 75,
+      "speed": 21,
+      "tier": 1,
+      "swallowTier": 1,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "resources.assets#266569",
+      "name": "PlayerVeh_Spider_Rank[2]",
+      "hp": 100,
+      "speed": 24,
+      "tier": 2,
+      "swallowTier": 2,
+      "slots": 4,
+      "collectionRadius": 15
+    },
+    {
+      "source": "resources.assets#266570",
+      "name": "PlayerVeh_Spider_Rank[3]",
+      "hp": 150,
+      "speed": 27,
+      "tier": 3,
+      "swallowTier": 3,
+      "slots": 4,
+      "collectionRadius": 15
+    }
+  ],
+  "moduleDraft": {
+    "source": "level4#18850",
+    "candidatePrefabCount": 26,
+    "luckRamp": 1.5
+  },
+  "rerolls": {
+    "source": "level4#18070",
+    "upgrade": 1,
+    "artifact": 2
+  },
+  "maps": [
+    {
+      "source": "resources.assets#266691",
+      "name": "DF1 - Dusky Pines",
+      "difficulty": 3,
+      "rewardMultiplier": 1.2999999523162842
+    },
+    {
+      "source": "resources.assets#266692",
+      "name": "DF2 - Somber Marsh",
+      "difficulty": 4,
+      "rewardMultiplier": 1.399999976158142
+    },
+    {
+      "source": "resources.assets#266693",
+      "name": "DF3 - Sinister Swamp",
+      "difficulty": 5,
+      "rewardMultiplier": 1.5
+    },
+    {
+      "source": "resources.assets#266694",
+      "name": "DS1 - Golden Dunes",
+      "difficulty": 2,
+      "rewardMultiplier": 1.100000023841858
+    },
+    {
+      "source": "resources.assets#266695",
+      "name": "DS2 - Savannah",
+      "difficulty": 4,
+      "rewardMultiplier": 1.399999976158142
+    },
+    {
+      "source": "resources.assets#266696",
+      "name": "DS3 - Wasteland",
+      "difficulty": 5,
+      "rewardMultiplier": 1.5
+    },
+    {
+      "source": "resources.assets#266697",
+      "name": "GL1 - Green Plains",
+      "difficulty": 1,
+      "rewardMultiplier": 1
+    },
+    {
+      "source": "resources.assets#266698",
+      "name": "GL2 - Meadows",
+      "difficulty": 3,
+      "rewardMultiplier": 1.2000000476837158
+    },
+    {
+      "source": "resources.assets#266699",
+      "name": "GL3 - Waving Fields",
+      "difficulty": 4,
+      "rewardMultiplier": 1.5
+    }
+  ],
+  "waveExample": {
+    "source": "resources.assets#266874",
+    "name": "WavesSpawner_Stage[1] (1)",
+    "tier": 1,
+    "endlessPhaseSpawner": 0,
+    "waveSpawnDistance": 150,
+    "circleSpawnDepth": 1,
+    "defaultSpawnPositionOffset": 5,
+    "maxGroundSpawnAttempts": 10,
+    "maxSpawnTickUnitCount": 200,
+    "globalSpawningBlockedByCompound": 0,
+    "bossSpawnTime": 240,
+    "bossSpawnOffset": 160,
+    "bossMinimumPlayerDistance": 100,
+    "bossSpawnClearanceRadius": 30,
+    "bossSpawnPlacementAttempts": 32,
+    "bossSpawnOffscreenViewportMargin": 0.10000000149011612,
+    "bossFightActive": 0,
+    "neutralPreProgrammedWaveSpawnDistance": 133,
+    "neutralSpawnsPerFrame": 3,
+    "overtimeStart": 380,
+    "skippedToOvertime": 0,
+    "healthMult": 1,
+    "speedMult": 1,
+    "damageMult": 0.6000000238418579,
+    "projectileSpeedMult": 1,
+    "unitsSpawned": 0,
+    "vehiclesSpawned": 0,
+    "powerLevelSpawned": 0,
+    "disableSpawner": 0,
+    "spawnTimeWindowVersion": 1
+  },
+  "upgradeBranch": [
+    {
+      "source": "sharedassets0.assets#52912",
+      "name": "Side_Cannon_Legendary_A_(Fire)",
+      "type": 3,
+      "description": "active ability projectiles set off an additional shot on explosion"
+    },
+    {
+      "source": "sharedassets0.assets#52913",
+      "name": "Side_Cannon_Legendary_B_(Ice)",
+      "type": 3,
+      "description": "active ability projectiles trigger an additional explosion after a short delay"
+    },
+    {
+      "source": "sharedassets0.assets#52929",
+      "name": "Upgrade_SideCannon_Special_0A",
+      "type": 4,
+      "description": "adds 1 volley to active ability"
+    },
+    {
+      "source": "sharedassets0.assets#52930",
+      "name": "Upgrade_SideCannon_Special_0B",
+      "type": 4,
+      "description": "automatic attack shots explode in a star shape"
+    },
+    {
+      "source": "sharedassets0.assets#52931",
+      "name": "Upgrade_SideCannon_Special_1A",
+      "type": 4,
+      "description": "active ability projectiles set targets on fire"
+    },
+    {
+      "source": "sharedassets0.assets#52932",
+      "name": "Upgrade_SideCannon_Special_1B",
+      "type": 4,
+      "description": "active ability projectiles slow enmies"
+    }
+  ],
+  "buildEffects": [
+    {
+      "source": "sharedassets0.assets#57998",
+      "class": "RunningShoes",
+      "name": "RunningShoes",
+      "unitExtraSpeed": 1
+    },
+    {
+      "source": "sharedassets0.assets#58496",
+      "class": "RepairWrench",
+      "name": "Repair Wrench",
+      "healAmountFlat": 40
+    },
+    {
+      "source": "sharedassets4.assets#4954",
+      "class": "ModuleSpeedStatBonus",
+      "name": "Fast Forward",
+      "addedSpeedStat": 40
+    },
+    {
+      "source": "sharedassets4.assets#5381",
+      "class": "AbilityComboRefund",
+      "name": "Triangulator",
+      "requiredDifferentAbilities": 3,
+      "activationWindow": 3,
+      "cooldownRefund": 0.20000000298023224
+    },
+    {
+      "source": "sharedassets4.assets#5392",
+      "class": "ModuleSizeStatBonus",
+      "name": "SuperSizer",
+      "addedSizeStat": 40
+    }
+  ],
+  "recoveredComponentCount": 25720,
+  "unparsedComponentCount": 142,
+  "certainty": "Configuration counts include serialized prefabs; not all entries are necessarily enabled or simultaneously offered. Method names and field shapes alone are not proof of runtime behavior. Findings on swallowing and upgrade-pool advancement also checked against native disassembly.",
+  "nativeProof": {
+    "swallow": "Harvester.CanPlayerAbsorbAgent; AgentVehicle.CanCurrentlyBeAbsorbedByPlayer",
+    "pool": "ModuleSelection.AdvanceUpgradePool",
+    "rarity": "ModuleSelection.CalculateLuckWeights; GetRarityProbabilities"
+  }
+}

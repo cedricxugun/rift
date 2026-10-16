@@ -1,0 +1,4 @@
+Built-in image_gen targeted edit of the first generated equipment sheet, 2026-10-15.
+Keep the exact 4x4 order, equipment identity, three-tier progression, palette and painted cel style. Remove all feet, legs, U-shaped arches, buildings, masonry, plants and bulky bases. Retain only a small flat collar or recoil bracket. Wind modules contain only their rotor and hub. Coils have a low ceramic foot; mortars a flat trunnion; the last cell is only an oval mounting ring. Preserve true transparency. No miniature castles, background, text or grid.
+Original candidate: C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-a78a2283-8375-4955-b73f-5f42813f8fdb.png
+Selected output: C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-803b71b9-fc49-4877-8cd0-49f9f9485097.png

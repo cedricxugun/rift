@@ -1,0 +1,91 @@
+{
+  "version": "V6.5",
+  "generator": "built-in image_gen",
+  "style_reference": "H:\\claudeprj\\apihub\\gameidea\\assets\\routes-v6.png",
+  "assets": [
+    {
+      "source": "H:\\claudeprj\\apihub\\gameidea\\assets\\castle-growth-v65.png",
+      "runtime": "H:\\claudeprj\\apihub\\gameidea\\assets\\castle-growth-v65.webp",
+      "prompt": "H:\\claudeprj\\apihub\\gameidea\\assets\\castle-growth-v65.prompt.txt",
+      "dimensions": [
+        1247,
+        1261
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "rgba_identical": true,
+      "bytes": 1646622,
+      "sha256": "178e82343f21bad16e8c0957417bb7f9959edf1d93bf5c68a484926512d3b66f",
+      "generated_source": "C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-63178092-51b7-4cc7-a398-0392e77b3cf3.png"
+    },
+    {
+      "source": "H:\\claudeprj\\apihub\\gameidea\\assets\\weapon-modules-v65.png",
+      "runtime": "H:\\claudeprj\\apihub\\gameidea\\assets\\weapon-modules-v65.webp",
+      "prompt": "H:\\claudeprj\\apihub\\gameidea\\assets\\weapon-modules-v65.prompt.txt",
+      "dimensions": [
+        1247,
+        1261
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "rgba_identical": true,
+      "bytes": 1056674,
+      "sha256": "f10aa7cf97a7819f3564df4bb8098d1c470ef73244005f55332cebb59166b457",
+      "generated_source": "C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-803b71b9-fc49-4877-8cd0-49f9f9485097.png"
+    },
+    {
+      "source": "H:\\claudeprj\\apihub\\gameidea\\assets\\skill-effects-v65.png",
+      "runtime": "H:\\claudeprj\\apihub\\gameidea\\assets\\skill-effects-v65.webp",
+      "prompt": "H:\\claudeprj\\apihub\\gameidea\\assets\\skill-effects-v65.prompt.txt",
+      "dimensions": [
+        1265,
+        1243
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "rgba_identical": true,
+      "bytes": 1175348,
+      "sha256": "5840d8a40f126d5524a8555d52088eb4404b475b448ffa4a228b4691056ce287",
+      "generated_source": "C:/Users/user/.codex/generated_images/01a1332c-d6f3-7a31-ba22-baf156b36451/exec-028ac285-1b3e-4f4e-bc04-7ca1c90bd458.png"
+    }
+  ],
+  "refinement": "H:\\claudeprj\\apihub\\gameidea\\assets\\weapon-modules-v65.refinement.txt",
+  "body_rows": [
+    "harbor",
+    "furnace",
+    "frost"
+  ],
+  "body_stage_levels": [
+    1,
+    2,
+    4,
+    6
+  ],
+  "body_stage_designs": [
+    "cottage",
+    "side decks and second floor",
+    "reinforced keep and lookout",
+    "layered citadel and rear platform"
+  ],
+  "equipment_rows": "Row-major: cannon 0-2, frost 3-5, wind 6-8, lightning 9-11, ember 12-14, mounting collar 15. All weapon modules lack separate buildings or feet.",
+  "effects_rows": [
+    "fire explosion (4 frames)",
+    "ice shatter (4 frames)",
+    "wind sweep (4 frames)",
+    "lightning impact (4 frames)"
+  ],
+  "rules": [
+    "Swallowed mass expands the chassis; skill learning does not switch the home.",
+    "Equipment appearance follows actual weapon ranks and learned skills. Expansion does not grant weapons.",
+    "Primary or cannon battery occupies front bays; other learned weapons use upper bays.",
+    "A cannon battery has one, two or three physical firing points according to actual volley count.",
+    "The game and gallery use the same body and equipment renderer. Gallery builds are examples only."
+  ],
+  "scope": "2.5D painted modular assembly, not a 3D skeletal model; no new monster art in this request."
+}

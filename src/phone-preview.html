@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#edf1d9"><title>吞城 · iPhone</title><!-- PHONE_STYLE --></head>
+<body class="preview-shell"><main class="phone-stage">
+  <section class="iphone"><div class="phone-screen"><iframe id="phone-game" title="Riftbound" allow="autoplay; fullscreen"></iframe></div><div class="dynamic-island" aria-hidden="true"></div><div class="home-indicator" aria-hidden="true"></div></section>
+  <aside class="preview-notes"><small data-copy="iPhone portrait demo"></small><h1 class="preview-title" data-copy="A pocket-sized city. A spectacular adventure."></h1><p data-copy="Drag to move. Tap for bullet time."></p><p data-copy="Swallow the ruin to reveal three skill choices."></p><p data-copy="Collect matching weapons to unlock these effects."></p><a href="Riftbound.html" data-copy="Play on your phone"></a></aside>
+</main><script>
+const gameDocument=__GAME_DOCUMENT__;
+const dictionaries=__PREVIEW_COPY__;
+const frame=document.getElementById('phone-game');
+function paintCopy(){let language='zh';try{language=JSON.parse(localStorage.getItem('riftbound-v2')||'{}').settings?.language||'zh';}catch{}const dictionary=dictionaries[language]||dictionaries.zh;document.documentElement.lang=language;for(const node of document.querySelectorAll('[data-copy]'))node.textContent=dictionary[node.dataset.copy]||node.dataset.copy;frame.title=dictionary['iPhone portrait demo'];}
+function applyInsets(){const desktop=innerWidth>500;const probe=document.createElement('div');probe.style.cssText='position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)';document.body.appendChild(probe);const measured=getComputedStyle(probe);const top=desktop?'54px':measured.paddingTop,bottom=desktop?'28px':measured.paddingBottom;probe.remove();const root=frame.contentDocument?.documentElement;if(root){root.style.setProperty('--safe-top',top);root.style.setProperty('--safe-bottom',bottom);}}
+const testing=new URLSearchParams(location.search).get('qa')==='1';
+const bootstrap='<script>window.__PHONE_PREVIEW__=true;window.__PHONE_QA__='+testing+';<\/script>';
+frame.addEventListener('load',applyInsets);window.addEventListener('resize',applyInsets);window.addEventListener('storage',paintCopy);paintCopy();
+// Keep the large embedded game out of an iframe attribute. The blank frame inherits
+// this offline document's origin and needs no server, fetch or extra asset files.
+const embedded=frame.contentDocument;
+embedded.open();embedded.write(gameDocument.replace('<head>','<head>'+bootstrap));embedded.close();
+</script></body></html>

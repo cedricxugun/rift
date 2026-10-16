@@ -1,0 +1,40 @@
+Tool: built-in image_gen
+Mode: generate
+Transparent background: true
+Saved asset: assets/arsenal.png
+Generated source: C:/Users/user/.codex/generated_images/01a1335a-d818-7563-8a51-0cd6412b9da1/exec-db404f2d-756b-4a75-9752-27fede85d0fc.png
+
+Exact prompt:
+Use case: stylized-concept.
+Asset type: production-ready transparent 4 by 4 sprite atlas for a bright, friendly, mobile fantasy castle-swallowing game.
+
+Create exactly sixteen isolated cartoon fantasy sprites on a genuinely transparent PNG background, arranged in FOUR perfectly even columns and FOUR perfectly even rows. All sixteen equal-sized cells must have generous transparent margins on every side: every sprite must stay within the inner 70 percent of its cell, with at least 15 percent empty padding at the top, bottom, left and right. No frame lines, no grid lines, no labels, no text, no letters, no numbers, no watermarks. No ground plane or scene. Small integral stone foundation blocks are fine. NO sprite, flame, spark, smoke or glow may touch another cell or cross a cell border.
+
+Visual style: charming simplified 3D cartoon game icons, clean chunky block shapes with softly beveled corners, readable silhouettes, lightly faceted cel shading, smooth unweathered materials, high craftsmanship, sunny and approachable rather than dark or hardcore. A consistent three-quarter isometric camera looking slightly down at every object. Soft light from upper left. Cream limestone castle masonry, saturated coral-red tiled roofs, muted emerald-teal details, warm golden brass trim. Cyan and sky blue for electricity and ice; orange, amber and coral for fire. Bold readable forms that still read on an iPhone at 40 to 70 pixels wide. Moderate detail, no realistic textures, no tiny filigree, no gritty surface damage, no photorealism, no heavy black outlines. The masonry, red roofs, gold collars, simple rods and glass crystals should all look like parts of one coherent toy castle art set.
+
+EXACT CELL CONTENTS, read left to right by row:
+ROW 1, cells 0,1,2,3: four increasingly advanced versions of the same LIGHTNING TOWER.
+0: small cream-stone electrical crystal tower, single short cyan crystal with a brass collar on a compact stone pedestal.
+1: twin-electrode tower, two stout golden rods and two small cyan crystal tips on the same cream-stone base.
+2: a clear TESLA COIL tower, short stacked gold coil rings around a teal column, topped with one bright cyan orb, chunky simple cream-stone footing.
+3: strongest thunder-crown antenna tower, a compact cream-stone castle turret with four golden crown prongs surrounding one luminous cyan crystal, a small stylized lightning-bolt-shaped antenna. All forms are physical tower upgrades, not flat UI symbols.
+
+ROW 2, cells 4,5,6,7: four increasingly advanced versions of the same EMBER / FLAME TOWER.
+4: small friendly flame furnace, cream-stone base with one round warm orange fire opening and a small coral-red hood.
+5: double fireball furnace, two round orange fire apertures with gold rims and a wider red furnace hood.
+6: volcanic forge, broad chunky cream-stone and dark warm basalt furnace, orange molten opening, short red stepped chimney, contained molten glow.
+7: phoenix furnace, elegant stronger red-and-gold furnace with a readable little golden phoenix-shaped crest above its orange core. Keep it a sturdy toy-like building with a modest contained flame, not an explosion.
+
+ROW 3, cells 8,9,10,11: FOUR COMBINATION BUILDINGS / EMBLEMS in the same miniature-building style.
+8: lightning cannon, a chunky dark grey cannon with a gold coil around its barrel and a small cyan energy crystal on a cream-stone gun mount.
+9: steam frost-fire furnace, a single compact cream-stone engine with a clearly icy cyan left chamber and fiery orange right chamber, one little contained white steam puff overhead.
+10: frost-lightning crystal, a chunky cyan ice crystal cluster on a golden ringed stone pedestal with two small gold lightning-shaped prongs.
+11: flame windmill, a small cream-stone and coral-red windmill, four chunky ivory-and-gold sails with orange-red tips, a small warm fire opening in its base.
+
+ROW 4, cells 12,13,14,15:
+12: the UNIVERSAL SKILL RELIC, instantly readable and distinct: one clean cream-stone short pillar supporting a large warm golden five-pointed star-shaped core, with a small open blank ivory scroll at its foot. A restrained golden halo close to the star is allowed. It must clearly read as a special collectible skill shrine, not a weapon tower. No writing on the scroll.
+13: a golden meteor, one large faceted golden-orange meteor rock with a short sweeping orange tail, entirely isolated and centered.
+14: a phoenix firebird, one cute stylized golden-orange phoenix with spread coral-tipped wings and a short elegant tail, entirely inside its cell. No background fire.
+15: a storm lightning sphere, one compact bright cyan energy orb wrapped in two chunky purple-gold orbit rings and three small contained lightning shapes. All parts stay inside its cell.
+
+Composition and alpha requirements: equal cell size, consistent icon scale and camera, clean complete silhouettes with no cut-off bases or tops, generous negative space separating all cells, true transparent alpha outside objects. Do not render a checkerboard pattern, a colored background, a white sheet, a black sheet or a UI board.

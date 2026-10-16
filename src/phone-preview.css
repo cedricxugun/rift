@@ -1,0 +1,323 @@
+@charset "UTF-8";
+
+/* The screen stays 393 x 852 CSS pixels on desktop. Only its presentation scales. */
+body.preview-shell {
+  --phone-scale: 0.9;
+  --preview-safe-top: 54px;
+  --preview-safe-bottom: 28px;
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  color: #3d553b;
+  background: radial-gradient(ellipse at 50% 44%, #fff9e9 0%, #f0f1db 52%, #e3ebce 100%);
+  font-family: "Trebuchet MS", "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.preview-shell *, .preview-shell *::before, .preview-shell *::after {
+  box-sizing: border-box;
+}
+
+.preview-shell .phone-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(24px, 3vw, 56px);
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px;
+}
+
+.preview-shell .iphone {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  width: calc(417px * var(--phone-scale));
+  height: calc(876px * var(--phone-scale));
+  padding: calc(12px * var(--phone-scale));
+  border-radius: calc(57px * var(--phone-scale));
+  background: #2d352d;
+  box-shadow: inset 0 0 0 1px #596353, inset 0 0 0 3px #252e27, 0 20px 45px #42552d26;
+  isolation: isolate;
+}
+
+.preview-shell .iphone::before,
+.preview-shell .iphone::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: calc(3px * var(--phone-scale));
+  border-radius: 3px;
+  background: #515c49;
+}
+
+.preview-shell .iphone::before {
+  top: calc(180px * var(--phone-scale));
+  left: calc(-2px * var(--phone-scale));
+  height: calc(64px * var(--phone-scale));
+  box-shadow: 0 calc(80px * var(--phone-scale)) #515c49;
+}
+
+.preview-shell .iphone::after {
+  top: calc(220px * var(--phone-scale));
+  right: calc(-2px * var(--phone-scale));
+  height: calc(90px * var(--phone-scale));
+}
+
+.preview-shell .phone-screen {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  overflow: hidden;
+  transform: scale(var(--phone-scale));
+  transform-origin: top left;
+  border-radius: 45px;
+  background: #bad68e;
+}
+
+.preview-shell .phone-screen iframe {
+  display: block;
+  width: 393px;
+  height: 852px;
+  margin: 0;
+  border: 0;
+  background: #bad68e;
+  color-scheme: light;
+}
+
+.preview-shell .dynamic-island {
+  position: absolute;
+  z-index: 3;
+  top: calc(22px * var(--phone-scale));
+  left: 50%;
+  width: calc(116px * var(--phone-scale));
+  height: calc(31px * var(--phone-scale));
+  transform: translateX(-50%);
+  border-radius: calc(20px * var(--phone-scale));
+  background: #19231d;
+  box-shadow: inset 0 1px #45504366;
+  pointer-events: none;
+}
+
+.preview-shell .dynamic-island::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(13px * var(--phone-scale));
+  width: calc(8px * var(--phone-scale));
+  height: calc(8px * var(--phone-scale));
+  transform: translateY(-50%);
+  border: 1px solid #3f544b;
+  border-radius: 50%;
+  background: #294139;
+}
+
+.preview-shell .home-indicator {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(21px * var(--phone-scale));
+  left: 50%;
+  width: calc(126px * var(--phone-scale));
+  height: calc(5px * var(--phone-scale));
+  transform: translateX(-50%);
+  border-radius: 6px;
+  background: #3c513bbb;
+  pointer-events: none;
+}
+
+.preview-shell .preview-notes {
+  grid-column: 3;
+  grid-row: 1;
+  width: 100%;
+  max-width: 260px;
+  padding-right: 10px;
+  color: #6b795a;
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.preview-shell .preview-notes .eyebrow,
+.preview-shell .preview-notes > small {
+  display: block;
+  margin: 0 0 13px;
+  color: #829663;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.preview-shell .preview-title {
+  margin: 0 0 16px;
+  color: #39563d;
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: clamp(25px, 2.5vw, 35px);
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.preview-shell .preview-title span { display: block; }
+.preview-shell .preview-notes p { margin: 0 0 14px; }
+.preview-shell .preview-notes strong { color: #49643f; font-weight: 800; }
+.preview-shell .preview-notes ul { margin: 16px 0; padding-left: 17px; }
+.preview-shell .preview-notes li + li { margin-top: 5px; }
+
+.preview-shell .preview-notes kbd {
+  display: inline-block;
+  min-width: 23px;
+  margin: 0 1px;
+  padding: 1px 5px;
+  border: 1px solid #ced9b8;
+  border-radius: 5px;
+  color: #587047;
+  background: #fff9ea;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.preview-shell .preview-notes a,
+.preview-shell .preview-notes button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 9px 13px;
+  border: 1px solid #ccd8b5;
+  border-radius: 12px;
+  color: #526d42;
+  background: #f7f9e9;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.preview-shell .preview-notes a:focus-visible,
+.preview-shell .preview-notes button:focus-visible {
+  outline: 3px solid #5b8248;
+  outline-offset: 3px;
+}
+
+@media (min-height: 980px) {
+  body.preview-shell { --phone-scale: 1; }
+}
+
+@media (max-height: 879px) {
+  body.preview-shell { --phone-scale: 0.82; }
+}
+
+@media (max-height: 779px) {
+  body.preview-shell { --phone-scale: 0.74; }
+}
+
+@media (max-height: 679px) {
+  body.preview-shell { --phone-scale: 0.64; }
+  .preview-shell .phone-stage { padding: 20px; }
+}
+
+@media (max-height: 579px) {
+  body.preview-shell { --phone-scale: 0.52; }
+  .preview-shell .phone-stage { padding: 16px; }
+  .preview-shell .preview-notes { font-size: 12px; line-height: 1.65; }
+  .preview-shell .preview-title { margin-bottom: 10px; font-size: 27px; }
+}
+
+@media (max-height: 479px) {
+  body.preview-shell { --phone-scale: 0.4; }
+  .preview-shell .phone-stage { padding: 12px; }
+  .preview-shell .preview-notes { font-size: 11px; }
+  .preview-shell .preview-notes p { margin-bottom: 8px; }
+}
+
+@media (min-width: 501px) and (max-width: 850px) {
+  .preview-shell .phone-stage {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 23px;
+  }
+
+  .preview-shell .iphone { grid-column: 1; grid-row: 1; }
+  .preview-shell .preview-notes { grid-column: 1; grid-row: 2; max-width: 390px; padding: 0 18px 14px; text-align: center; }
+  .preview-shell .preview-notes ul { padding: 0; list-style: none; }
+}
+
+/* Real phones get a responsive game viewport, with no painted device chrome. */
+@media (max-width: 500px) {
+  body.preview-shell {
+    --phone-scale: 1;
+    --preview-safe-top: env(safe-area-inset-top, 0px);
+    --preview-safe-bottom: env(safe-area-inset-bottom, 0px);
+    position: fixed;
+    inset: 0;
+    min-width: 0;
+    min-height: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #bad68e;
+  }
+
+  .preview-shell .phone-stage {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .preview-shell .iphone {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .preview-shell .phone-screen {
+    width: 100%;
+    height: 100%;
+    transform: none;
+    border-radius: 0;
+  }
+
+  .preview-shell .phone-screen iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .preview-shell .iphone::before,
+  .preview-shell .iphone::after,
+  .preview-shell .dynamic-island,
+  .preview-shell .home-indicator,
+  .preview-shell .preview-notes,
+  .preview-shell .preview-title {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-shell *, .preview-shell *::before, .preview-shell *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

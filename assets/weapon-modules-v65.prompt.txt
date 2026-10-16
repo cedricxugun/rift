@@ -1,0 +1,21 @@
+Use case: stylized-concept. Production game equipment sprite atlas.
+Reference image: match the existing cozy hand-painted living-castle art EXACTLY, fine brown cel outlines, matte timber, aged brass/iron, warm cream ceramic, simple restrained shadows. These are functional mounted EQUIPMENT, not little buildings or icons. Original storybook fantasy, no text, no vector look, no shiny realism, no ground, no decorative halos.
+Create one genuinely transparent PNG, exactly 4 equal columns x 4 equal rows, sixteen separate complete sprites with generous transparent gutters. Camera matches the reference slightly elevated three-quarter view. Each complete device belongs to one consistent wooden/copper mount family. No bases extending into neighboring cells. Consistent center alignment. Ordinary to advanced devices have a clear silhouette progression, not just a different glow.
+Exact ROW-MAJOR cell indices:
+0 basic cannon: one short matte charcoal iron barrel pointing horizontally RIGHT, cream/brass collar and wooden trunnion.
+1 upgraded cannon: one longer thick armored barrel pointing RIGHT, two large brass bands, a visible recoil sleeve.
+2 siege cannon: one broad heavy long barrel pointing RIGHT, stepped reinforced jacket, two small vent ribs, chunky recoil sleeve, single large muzzle. NOT multiple barrel holes. Game will mount multiple copies to match real projectile count.
+3 basic ice projector: a compact ivory/blue wooden socket with one ice lance pointing horizontally RIGHT.
+4 upgraded ice projector: a larger framed crystal lance pointing RIGHT with two short side crystal fins, broad readable shapes.
+5 advanced ice projector: a three-pronged frost focusing fork pointing RIGHT, pale matte ice, cream support frame, longer center crystal and two side prisms.
+6 basic wind turbine: small four-blade cream cloth/wood rotor, circular hub, viewed face-on with a slight isometric depth. No mast or building.
+7 upgraded wind turbine: larger six-blade leaf-shaped canvas rotor with jade-green vane edges, wooden central hub, same angle.
+8 advanced wind turbine: broad curved six-blade double-rim turbine with reinforced hub and jade-green cloth, same angle, no building.
+9 basic lightning coil: squat ivory ceramic pedestal with three aged-copper coil rings and a little pale amber conductor tip, upright.
+10 upgraded lightning coil: paired short ceramic conductor forks joined by one integrated wooden base, copper windings and warm pale tips, upright.
+11 advanced lightning coil: three-prong tall conductor crown, layered copper windings and ivory ceramic, substantial shared base, no extra building, upright.
+12 basic ember launcher: small matte terracotta/iron mortar pot angled up-right, warm amber opening and wooden banded base.
+13 upgraded ember launcher: wider clay fire mortar with two metal ribs, clear deep orange opening angled up-right, shared wooden recoil mount.
+14 advanced ember launcher: tall heavy copper/clay eruption nozzle, layered heat shield and wider amber mouth angled up-right, contained glow only.
+15 universal weapon plinth: a low cream stone and wooden circular platform with a broad matte aged-brass socket, NO weapon, camera matching the castle side balconies.
+For cells 0-5, the firing axis is horizontal RIGHT. Rear pivot at roughly x=.28,y=.55, muzzle tip at x=.87,y=.55. For cells 6-8, rotor hub centered at .5,.5. For cells 9-15, foot anchor centered at x=.5,y=.87. Every isolated object should occupy about 75% cell width and remain fully inside its cell. No flying projectiles, smoke, muzzle flashes or letters. True transparent alpha around all objects. The goal is convincingly painted modular equipment whose tier is legible in-game.

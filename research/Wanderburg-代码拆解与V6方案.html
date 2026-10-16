@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wanderburg 静态代码拆解 · 吞城 V6 设计依据</title>
+<style>
+:root{font-family:system-ui,"Microsoft YaHei",sans-serif;color:#243a34;background:#edf0e5;line-height:1.8}*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:auto;padding:54px 28px 90px}header{border-bottom:2px solid #b6c8ae;padding-bottom:30px;margin-bottom:30px}.eyebrow{color:#657e5d;font-size:12px;letter-spacing:2px}h1{font-size:clamp(28px,4vw,46px);line-height:1.2;margin:12px 0 20px}h2{font-size:25px;margin:46px 0 14px}h3{font-size:18px;margin:24px 0 10px}p{margin:10px 0}.lead{font-size:19px;max-width:850px}.muted,small{color:#617169}.note{padding:18px 22px;border-left:4px solid #af6147;background:#fff9ec;margin:20px 0}.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}.fact,.card{background:#fffdf5;padding:20px;border:1px solid #d0dac6;border-radius:14px}.fact b{display:block;font-size:29px;line-height:1.3}.fact span{font-size:12px;color:#617169}.table{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;background:#fffdf5;margin:16px 0}th,td{text-align:left;vertical-align:top;border:1px solid #d2dccb;padding:12px 14px}th{background:#dfe8d4}code{font-family:Consolas,monospace;font-size:.9em;background:#e3eadb;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}pre{white-space:pre-wrap;background:#243b34;color:#eef1df;padding:20px;line-height:1.65;border-radius:12px;font-size:13px;overflow-wrap:anywhere}pre code{background:none;color:inherit;padding:0}.flow{display:flex;align-items:stretch;gap:10px;margin:18px 0}.flow .card{flex:1;text-align:center}.arrow{align-self:center;color:#819b6b;font-size:23px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.tag{display:inline-block;font-size:11px;border:1px solid #bdd0ac;background:#e4ecd9;padding:1px 8px;border-radius:20px;margin-right:5px}.proposal{background:#f7ead7;border-color:#dbc5a4}a{color:#356e64}li{margin:8px 0}summary{cursor:pointer;font-weight:700}details{padding:15px 0;border-top:1px solid #ccd8c4}.foot{margin-top:45px;font-size:12px;color:#64716a}.source{font-size:12px;color:#66766d}nav{display:flex;gap:18px;flex-wrap:wrap;font-size:13px}@media(max-width:700px){main{padding:26px 16px}.facts{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.flow{flex-direction:column}.arrow{transform:rotate(90deg)}td,th{padding:9px}h2{font-size:22px}}
+</style>
+<main>
+<header><div class="eyebrow">静态代码与配置研究 · 2026.10.14</div><h1>把“吞噬”做进 BUILD</h1><p class="lead">Wanderburg 最值得借鉴的是分层的模块成长、会推进的候选池和载具属性分工。我们的下一步应把<strong>吞噬事件、武器分支和城堡形态</strong>连在一起，让不同构筑产生不同操作选择。</p><p class="muted">研究对象：H:\gamequ\Wanderburg Game · 包内版本 EA 0.9.14.1。下文的 V6 内容均为设计提案，当前可玩 Demo 仍为 V5.1。</p><nav><a href="#evidence">代码发现</a><a href="#comparison">现版差距</a><a href="#v6">V6 方案</a><a href="#delivery">实施与验收</a><a href="#sources">证据与限制</a></nav></header>
+<div class="facts"><div class="fact"><b>458</b><span>包内升级配置，不是 458 种独立玩法</span></div><div class="fact"><b>20 + 7</b><span>主模块族 + 乘员模块族</span></div><div class="fact"><b>4 × 3</b><span>三种载具各四档明确命名配置</span></div><div class="fact"><b>9</b><span>草地、沙漠、暗林的地域配置</span></div></div>
+<div class="note"><strong>证据口径：</strong>从 IL2CPP 元数据恢复类型与字段，结合原生指令反汇编核对关键分支，再解码序列化配置。恢复的 C# 声明中存在空方法体，它们不等于原始源码。本轮没有把实际游玩作为证据，也没有对整套运行时行为作完整验证。</div>
+
+<section id="evidence"><h2>一、直接从代码确认的设计</h2>
+<h3>1. 升级有两条不同的轴：成长类型与品质</h3>
+<p><code>ModuleUpgrade.UpgradeType</code>分为冷却、自动攻击、主动技能、传奇、特殊五类；<code>RarityValueCount = 4</code>对应另一条四档数值品质轴。传奇是成长节点类型，不能直接理解为“所有卡里的第五档品质”。<code>Module2</code>还分别记录自动、主动、冷却等级及已安装升级。</p>
+<div class="table"><table><thead><tr><th>一个主模块的配置结构</th><th>节点数</th><th>用途</th></tr></thead><tbody><tr><td>自动攻击路线</td><td>5</td><td>强化基础输出，可附加范围、弹速等属性</td></tr><tr><td>主动技能路线</td><td>5</td><td>强化主动效果、弹量、持续时间等</td></tr><tr><td>冷却路线</td><td>5</td><td>改变触发频率</td></tr><tr><td>两组 A/B 特殊分支</td><td>4</td><td>改变攻击机制</td></tr><tr><td>A/B 传奇分支</td><td>2</td><td>提供互斥的后续方向</td></tr></tbody></table></div>
+<p>20 个主模块各有 21 条配置，共 420 条；7 个乘员模块合计 38 条。<strong>大量内容来自“同一套结构承载不同效果”，不意味着需要手写几百种完全独立技能。</strong></p>
+<p class="source">证据：ModuleUpgrade.cs、Module2.cs；game-configurations.json 中 458 个 ModuleUpgrade 实例。包内包含备选和预制体，数量不代表所有节点同时可抽。</p>
+
+<h3>2. 候选池是一条会推进的路线</h3>
+<p><code>ModuleSelection.AdvanceUpgradePool</code>的原生分支确认：先移除已领取项，再把它配置的后继节点加入候选池；排除已安装和重复项，并检查模块 ID。传奇选择还会移除对应的另一条传奇项。抽选代码会调用<code>ArtifactSystem.IsArtifactEligibleForCurrentBuild</code>；代码里存在装备条件、构筑标签与候选不足时的补位处理。</p>
+<div class="flow"><div class="card">获得模块<br><small>只有起始节点进入池</small></div><span class="arrow">→</span><div class="card">选择升级<br><small>消耗该节点</small></div><span class="arrow">→</span><div class="card">解锁后继<br><small>检查前置与互斥</small></div><span class="arrow">→</span><div class="card">形成分支<br><small>改变后续可选内容</small></div></div>
+<p>本地配置的新模块机会位于<strong>内部等级 3、12、24</strong>，说明“获得新武器”和“强化已有武器”有独立节奏。经验需求前十项为 30、50、70、85、100、110、120、130、140、150，后续封顶为 500。这里只说明配置，不能直接把这些数值移植到我们不同的资源产量和地图尺寸里。</p>
+<p>本地场景配置提供 1 次初始升级重抽、2 次初始神器重抽。幸运值经过单独的权重函数处理；序列化表中的默认概率不应直接当成最终实际概率。</p>
+
+<h3>3. “吞”和“打”确实各有职责</h3>
+<p><code>Harvester.CanPlayerAbsorbAgent</code>先排除不可吸收、盟友、已吸收、已死亡／已回收及生命失效的对象；车辆交给<code>AgentVehicle.CanCurrentlyBeAbsorbedByPlayer</code>检查。普通单位比较玩家体型等级，车辆比较单独的“可吞车辆等级”。该入口<strong>没有“必须先打至某个生命百分比”的通用条件</strong>；其他状态仍可能影响可吞资格。</p>
+<pre><code>// 依据已核对分支归纳的伪代码；不是恢复出的原始 C#。
+if (!有效敌人 || !可吸收 || 是盟友 || 已死亡或回收) return false;
+if (敌人是车辆) return 敌人吞噬等级 &lt;= 玩家可吞车辆等级;
+return 敌人吞噬等级 &lt;= 玩家体型等级;</code></pre>
+<p>这支持我们原来的设想：成长应使旧威胁变成食物，同时让更大的目标保留战斗价值。黑洞吞噬可以成为一种处决、补充战斗资源和触发连锁的操作。</p>
+
+<h3>4. 车辆成长包含速度、生命和收集能力</h3>
+<div class="table"><table><thead><tr><th>配置族</th><th>四档生命</th><th>四档最高速度</th><th>收集半径</th></tr></thead><tbody><tr><td>Tank</td><td>120 / 180 / 300 / 500</td><td>15 / 16 / 17 / 18</td><td>15 / 15 / 15 / 15</td></tr><tr><td>Tower</td><td>60 / 80 / 130 / 200</td><td>19 / 20 / 22 / 25</td><td>15 / 20 / 25 / 30</td></tr><tr><td>Spider_Rank</td><td>50 / 75 / 100 / 150</td><td>19 / 21 / 24 / 27</td><td>15 / 15 / 15 / 15</td></tr></tbody></table></div>
+<p>这些配置的可吞车辆等级从 0 升到 3，主动槽容量都为 4。包里另有 3 套命名不同的基础参数，使用路径未确认，因此不能把“15 套参数”说成“15 种载具”。这些速度使用对方引擎单位，不能与我们当前 6.4 的速度直接比较。</p>
+<p>可借鉴的是三种职责：耐打、收集、机动。手机上应继续采用直接拖动移动，把这些差异做进底盘与技能，避免把转向惯性变成操作负担。</p>
+
+<h3>5. 填充属性也有实际作用范围</h3>
+<p>侧炮自动攻击的一个升级配置同时包含基础伤害调整、四档追加伤害 <code>[0, 6, 9, 15]</code>，以及可选的范围／弹速属性。另有模块尺寸、模块速度、行驶状态影响攻击、连续使用不同技能返还冷却等独立实现。</p>
+<p>例如<code>AbilityComboRefund</code>对应的本地配置要求 3 秒内使用 3 种不同技能，配置了 0.2 的冷却返还系数。这是“操作方式影响组合效果”的一个例子；最终应用范围仍需结合调用路径确认。界面里的弹速、召唤物移速、载具移速必须明确区分。</p>
+
+<h3>6. 刷怪采用多层计划，地图也有任务</h3>
+<p><code>WaveSpawner</code>同时包含常规池、中立单位波次、预编排波次、群袭、Boss 与加时阶段。刷出位置还检查地图边界、与玩家距离和屏外位置；按帧限制批次生成。草地、沙漠、暗林各有三套地域配置，难度、任务与收益倍率分别配置。</p>
+<p>一个初期阶段预制体配置 Boss 时间 240 秒、加时开始 420 秒，这只是该预制体的局部阶段参数，不能当成整个游戏统一时长。它说明了“阶段”和“整局”需要分开设计。</p>
+</section>
+
+<section id="comparison"><h2>二、对照我们的 V5.1，真正需要补什么</h2>
+<div class="table"><table><thead><tr><th>现版实现</th><th>体验风险</th><th>下一步</th></tr></thead><tbody><tr><td>五系武器沿固定等级线增长</td><td>升完后容易取得相近的全套效果</td><td>加入互斥机制分支，限制同时装备的主武器</td></tr><tr><td>数值卡、弹幕卡和核心分池抽取</td><td>已有分层，但普通稀有度与武器阶级仍有混用；缺少前置路线</td><td>品质与节点类型分开；使用前置、排斥和标签</td></tr><tr><td>六种组合由武器等级自动触发</td><td>吞噬主要负责经验，战斗组合几乎与吞噬操作无关</td><td>把吞碎片、吞燃烧目标、吞冻结目标接入不同循环</td></tr><tr><td>按时间和技能次数增加强化怪</td><td>强度与成长容易彼此抵消；仍可能只剩一圈追兵</td><td>按阶段配置威胁预算，限制同时压迫的远程单位</td></tr><tr><td>一个竞技场，资源较早被清空</td><td>延长时间后缺少探索选择</td><td>加入资源车队、护卫营地、恢复点和阶段事件</td></tr><tr><td>工坊只有四项有上限的永久属性</td><td>短期有回报，长期仍缺新的玩法目标</td><td>保留基础改装，再增加底盘和可试用蓝图</td></tr></tbody></table></div>
+<p class="source">对照文件：src/v2/data.js（武器路线、组合、体型）、perks.js（品质与候选条件）、game.js（选卡与刷怪）、workshop.js（永久改装）。</p>
+<p><strong>应继续保留：</strong>吞噬填条后生成统一遗迹、吞下再横排三选一、稀有核心与普通强化共存、回血靠掉落、组合面板收进按钮、iPhone 单手操作，以及 V5.1 的渲染预算与缓存。</p>
+</section>
+
+<section id="v6"><h2>三、V6 提案：三条有操作差异的吞城路线</h2>
+<p><span class="tag proposal">以下为我们的原创设计建议</span>先做三条能完整成型的路线，再扩展数量。建议同时装备最多 3 个主武器与 1 个核心；替换武器时展示损失与返还，避免让玩家误以为刚才的升级消失。</p>
+<div class="grid"><article class="card"><h3>风暴炮港</h3><p><strong>拆解 → 回收 → 连射</strong></p><p>炮击拆出碎片；吞碎片积攒装填进度；完成一轮回收后获得下一轮强化齐射。</p><p>分支：重型穿透炮 / 散射回收炮。一个擅长破盾，一个擅长清理与续航。</p><small>外观：长炮管或宽口多联炮；风帆和装填灯随状态变化。</small></article><article class="card"><h3>熔炉吞城</h3><p><strong>点燃 → 吞噬 → 喷发</strong></p><p>吞下燃烧中的小敌人积攒炉压；满炉压自动喷出火雨，玩家通过接近目标加快爆发。</p><p>分支：持续燃烧地带 / 瞬时连锁爆破。燃烧、范围与吞噬效率形成闭环。</p><small>外观：炉门变亮、烟囱喷火；爆发前有清楚的蓄压反馈。</small></article><article class="card"><h3>霜镜庭院</h3><p><strong>冻结 → 吞噬 → 护卫冰片</strong></p><p>吞下冻结目标获得环绕冰片；冲刺时释放冰片，主动选择保留防御还是打出扇形攻击。</p><p>分支：控制护航 / 碎冰追击。避免单纯把冰系变成另一种伤害颜色。</p><small>外观：温室冰冠、可数清的护卫冰片和冲刺扇形轨迹。</small></article></div>
+
+<h3>吞噬与战斗的统一规则</h3>
+<div class="table"><table><thead><tr><th>目标</th><th>建议规则</th><th>玩家获得什么</th></tr></thead><tbody><tr><td>食物与碎片</td><td>尺寸满足即可吞</td><td>基础成长、技能能量；部分构筑获得额外循环资源</td></tr><tr><td>低一级的普通敌人</td><td>可以健康状态直接吞</td><td>明确感受到旧威胁变成食物</td></tr><tr><td>同级重甲敌人</td><td>先破甲，再接近吞噬；危险阶段给清晰图标</td><td>比远处击杀更好的构筑资源回报</td></tr><tr><td>精英与 Boss</td><td>满足阶段／破绽条件后才能整吞</td><td>有仪式感的收尾与进化奖励</td></tr></tbody></table></div>
+<p>体型、可吞等级和受击核心分开管理。城堡长大后提高吞噬能力，中央受击区域保持清楚。吞噬触发的爆破、回血、消弹都设置冷却和次数上限，防止连锁无限递归。</p>
+
+<h3>让随机性提供选择，也提供可控性</h3>
+<ul><li>每次三选一优先提供：已有路线推进、另一种机制选择、通用数值或生存能力。已经选掉的互斥分支不再出现。</li><li>关键机制节点保证有获取机会；品质主要改变数值或附加词条，避免成型完全依赖高品质运气。</li><li>给少量免费重抽；候选不足时有清晰的治疗或资源补位。解锁新蓝图后允许调整本局候选范围，避免内容越多越难凑 BUILD。</li><li>每个选项显示“现在 → 选择后”，包括实际弹数、冷却秒数、范围、适用武器。属性只对当前真正使用它的系统投放。</li></ul>
+
+<h3>保留十分钟成长，但用阶段目标填满它</h3>
+<div class="table"><table><thead><tr><th>建议阶段</th><th>主要体验</th><th>应观察的结果</th></tr></thead><tbody><tr><td>0–2 分钟</td><td>学习吞噬，拿到第一种明显改变攻击的升级</td><td>能够判断自己在走哪条路线</td></tr><tr><td>2–5 分钟</td><td>争夺营地／车队，完成首个机制分支</td><td>探索收益与迎战风险形成选择</td></tr><tr><td>5–8 分钟</td><td>组合生效，新敌人克制当前操作习惯</td><td>已成长的玩家能轻松处理旧敌人</td></tr><tr><td>8–10 分钟</td><td>完成核心，进入一段清晰的爆发体验</td><td>玩家有时间使用成型 BUILD</td></tr><tr><td>10 分钟以后</td><td>Boss 多阶段检验；胜利后可选继续挑战</td><td>额外挑战自愿进入，并明确风险与奖励</td></tr></tbody></table></div>
+<p>敌人强度按每阶段预期成长设计。强化远程怪的数量、攻击重叠和屏外预警应比单纯加血量更优先控制。不能让玩家刚升级，就立刻用等比例加血抵消成长收益。</p>
+
+<h3>局外养成继续小幅提升，并开放新的路线</h3>
+<p>底盘、装甲、回收、补给四项改装保留上限。后续奖励以新底盘、起始模块和分支蓝图为主；新蓝图先允许试用。失败有稳定收益，关键操作手感在零改装状态下也应成立。不要把慢移速、少恢复或无效属性设计成必须长期付出时间才能修好的缺陷。</p>
+</section>
+
+<section id="delivery"><h2>四、实施顺序与验收条件</h2>
+<div class="table"><table><thead><tr><th>顺序</th><th>具体改动</th><th>验收条件</th></tr></thead><tbody><tr><td>P0：构筑结构</td><td>新增技能节点图、标签、互斥分支和候选池推进；拆开品质、类型、等级</td><td>相同武器能形成两种可识别打法；不会抽到失效词条；领取不会重复结算</td></tr><tr><td>P1：吞战闭环</td><td>先实现上面三条路线的吞噬触发效果，接入破甲提示、蓄能和动作</td><td>吞敌与远处击杀会导致不同决策；一眼能看出爆发来源；连锁有上限</td></tr><tr><td>P2：地图与压力</td><td>阶段目标、资源点和威胁预算；成型后留出爆发阶段</td><td>中期不是空地图绕圈；屏外远程攻击有预警；失败原因可以复盘</td></tr><tr><td>P3：长期目标</td><td>底盘、蓝图试用与可控候选范围，调整零件获取</td><td>新解锁提供新策略；解锁越多不会明显降低成型可靠性</td></tr></tbody></table></div>
+<p>代码落点：数据层增加 <code>skill-graph.js</code> 与节点条件；<code>game.js</code>负责候选推进、吞噬事件和奖励事务；<code>arsenal.js</code>订阅吞噬／破甲／冲刺事件；<code>renderer.js</code>表现可吞状态与蓄能；<code>ui.js</code>展示分支取舍与前后数值。工坊和现有单文件离线构建继续沿用。</p>
+<p>数值验证先使用同种子对照：记录前 2 / 5 / 8 分钟的选择次数、已形成机制、受伤来源和恢复供给。自动驾驶用于验证流程，真人试玩用于判断手感。性能用持续移动与后期组合场景复测，沿用 V5.1 的像素预算。</p>
+</section>
+
+<section id="sources"><h2>五、评论只作交叉参考，代码事实单列</h2>
+<p>本轮保存了 100 条 Steam 评论供交叉检索：简中／英文各 25 条推荐与 25 条不推荐，按有用程度排序。下表列出本次核对的相关样本，不是对全部评论的统计调查；推荐标签的评论也包含批评。</p>
+<div class="table"><table><thead><tr><th>样本中的反馈</th><th>对我们有用的约束</th></tr></thead><tbody><tr><td><a href="https://steamcommunity.com/profiles/76561198076793976/recommended/3624140/">喜欢会移动的建筑、地图兴趣点与童话感，同时批评成长单调</a></td><td>增加能够改变战斗选择的地图目标，让外观变化对应真实机制</td></tr><tr><td><a href="https://steamcommunity.com/profiles/76561198316947074/recommended/3624140/">认可统一美术，批评升级不明显、刷怪重叠和局外回报</a></td><td>用分支效果、可读预警与稳定失败收益保护体验</td></tr><tr><td><a href="https://steamcommunity.com/profiles/76561198004429846/recommended/3624140/">认为成型后加时压力过猛，组合联动不足</a></td><td>成型后留出发挥空间；额外挑战自愿进入</td></tr><tr><td><a href="https://steamcommunity.com/profiles/76561197971469604/recommended/3624140/">担心解锁稀释候选池，部分属性说明难理解</a></td><td>提供候选范围控制与前后数值；过滤不适用属性</td></tr></tbody></table></div>
+<p>官方 <a href="https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010501039">0.9.14 更新</a>也调整了重抽、Boss 视野与部分平衡。本地包自报 0.9.14.1，有些序列化值与公开补丁说明不同；报告以本地记录为证据，不把它当成当前 Steam 版的保证。</p>
+<details open><summary>可追溯文件与限制</summary><ul><li><a href="wanderburg-static-evidence.json">精简配置证据 JSON</a>：升级分类、内部成长节点、车辆参数、地域和具体分支例子。</li><li><a href="wanderburg-source-hashes.json">输入文件 SHA-256</a>：定位本轮 GameAssembly.dll 与 global-metadata.dat。</li><li><a href="../.qa/wanderburg-research/cpp2il/DiffableCs/Assembly-CSharp/ModuleUpgrade.cs">ModuleUpgrade 类型结构</a>；<a href="../.qa/wanderburg-research/native-analysis/IsilDump/Assembly-CSharp/Harvester.txt">吞噬入口原生分析</a>；<a href="../.qa/wanderburg-research/native-analysis/IsilDump/Assembly-CSharp/ModuleSelection.txt">候选池原生分析</a>。</li><li>完整临时材料位于 <code>.qa/wanderburg-research/</code>；恢复了 25,720 个项目组件记录，另有 142 个解析失败记录，未把失败项的数据当作结论。</li><li>工具：Cpp2IL 2022.1.0-pre-release.21、UnityPy 1.25.4、TypeTreeGeneratorAPI 0.0.10。类型声明、原生分支和序列化实例分别保存，避免混淆。</li><li>类和字段的存在不代表每个预制体、遗留接口都在当前流程启用。无法确认的运行时行为与全部稀有度最终概率仍需后续验证。</li></ul></details>
+</section><p class="foot">本报告给出代码依据与 V6 实施提案。研发顺序应先验证三条完整构筑，再扩展模块数量与长期解锁。</p>
+</main></html>
