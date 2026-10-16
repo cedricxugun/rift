@@ -10,7 +10,7 @@ export class BattleInput{
     });
     window.addEventListener('keyup',e=>this.keys.delete(e.code));window.addEventListener('blur',()=>this.clear());
     canvas.addEventListener('pointerdown',e=>{
-      if(!this.enabled)return;if(e.button===2){this.activateAbility();return;}if(e.button>0)return;
+      if(!this.enabled)return;if(e.button===2){this.activateAbility();return;}if(e.button>0||this.pointer!==null)return;
       this.pointer=e.pointerId;this.touch=e.pointerType!=='mouse'||Boolean(window.__PHONE_PREVIEW__);this.anchor={x:e.clientX,y:e.clientY};this.target={...this.anchor};canvas.setPointerCapture(e.pointerId);
       if(this.touch){this.joystick.style.display='block';this.joystick.style.left=`${e.clientX}px`;this.joystick.style.top=`${e.clientY}px`;this.joystick.firstElementChild.style.transform='';}
     });
@@ -18,9 +18,11 @@ export class BattleInput{
       if(e.pointerId!==this.pointer)return;this.target={x:e.clientX,y:e.clientY};
       if(this.touch){const x=e.clientX-this.anchor.x,y=e.clientY-this.anchor.y,factor=Math.min(1,37/Math.hypot(x,y));this.joystick.firstElementChild.style.transform=`translate(${x*factor}px,${y*factor}px)`;}
     });
-    canvas.addEventListener('pointerup',()=>this.release());canvas.addEventListener('pointercancel',()=>this.release());canvas.addEventListener('contextmenu',e=>e.preventDefault());
+    const releasePointer=e=>{if(e.pointerId===this.pointer)this.release();};
+    canvas.addEventListener('pointerup',releasePointer);canvas.addEventListener('pointercancel',releasePointer);canvas.addEventListener('lostpointercapture',releasePointer);canvas.addEventListener('contextmenu',e=>e.preventDefault());
+    window.addEventListener('resize',()=>this.clear());
   }
-  release(){this.pointer=null;this.target=null;this.anchor=null;this.joystick.style.display='none';}
+  release(){const pointer=this.pointer;this.pointer=null;this.target=null;this.anchor=null;this.joystick.style.display='none';if(pointer!==null&&this.canvas.hasPointerCapture(pointer))this.canvas.releasePointerCapture(pointer);}
   clear(){this.keys.clear();this.release();}
   direction(player){
     if(!this.enabled)return{x:0,z:0};

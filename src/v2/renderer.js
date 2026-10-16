@@ -30,11 +30,12 @@ export class BattleRenderer {
     this.terrainLayer=document.createElement('canvas');this.terrainCtx=this.terrainLayer.getContext('2d',{alpha:false});
     this.ground=this.terrainCtx.createPattern(images.terrain,'repeat');
     this.resize();window.addEventListener('resize',()=>this.resize());
+    if(typeof ResizeObserver!=='undefined'){this.viewportObserver=new ResizeObserver(()=>{const box=this.canvas.getBoundingClientRect();if(Math.round(box.width)!==this.width||Math.round(box.height)!==this.height)this.resize(true);});this.viewportObserver.observe(this.canvas.parentElement);}
   }
 
   resize(preserveScale=false){
     if(!preserveScale)this.resolutionScale=1;
-    this.width=innerWidth;this.height=innerHeight;
+    const viewport=this.canvas.getBoundingClientRect();this.width=Math.max(1,Math.round(viewport.width));this.height=Math.max(1,Math.round(viewport.height));
     const pixelBudget=this.settings.quality==='balanced'?1200000:2000000;
     this.dpr=Math.min(devicePixelRatio||1,this.settings.quality==='balanced'?1.35:2,Math.sqrt(pixelBudget/(this.width*this.height)))*this.resolutionScale;
     this.canvas.width=Math.round(this.width*this.dpr);this.canvas.height=Math.round(this.height*this.dpr);

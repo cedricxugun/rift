@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "bun scripts/build.mjs",
+    "build:mobile": "bun scripts/build-mobile.mjs",
+    "preview:mobile": "node scripts/preview-mobile.mjs",
     "dev": "bun run build && bun scripts/serve.mjs",
     "serve": "bun scripts/serve.mjs",
     "preview": "bun scripts/open-preview.mjs",

@@ -1,0 +1,39 @@
+{
+  "title": "Riftbound mobile web",
+  "version": "V7",
+  "url": "https://riftbound-mobile-v7.boydwilkinsontfo.chatgpt.site",
+  "access": "public",
+  "deployment_status": "succeeded",
+  "project_id": "appgprj_6ad1e875f03c8191928ed3591daa32cd",
+  "site_version_id": "appgprj_6ad1e875f03c8191928ed3591daa32cd~appgver_9c075107b2588191b1ecf132ba0a71ab",
+  "site_source_commit": "546c1fb7aed7f82f5b6dcec9105dad76f6d54bb0",
+  "deployment_id": "appgdep_6ad1ef2a662881918c99aa440904594e",
+  "static_entry": "dist/index.html",
+  "local_checkout": ".sites/riftbound-mobile",
+  "checks": {
+    "tests": 122,
+    "translation_keys": 839,
+    "locales": 6,
+    "phone_css_viewports": [
+      "375x667",
+      "393x852",
+      "852x393"
+    ],
+    "safe_area_insets": "47 px notch, 34 px portrait bottom, 47 px landscape sides / 21 px bottom",
+    "three_cards_fit": true,
+    "touch_joystick": "Chrome touch-emulated input moved the castle and collected resources",
+    "second_finger": "Pointer-down activation worked while movement finger remained down",
+    "physical_iphone_tested": false,
+    "public_network_probe": "Native deployment succeeded and public access was confirmed. Anonymous shell HTTP probe was blocked by Cloudflare; did not bypass the block."
+  },
+  "hosting_build": {
+    "entry_html_bytes": 1128,
+    "asset_bytes": 20191603,
+    "largest_asset_bytes": 1735076
+  },
+  "notes": [
+    "No server-side game state, analytics, or account required by this game. Saves remain in visitor browser.",
+    "Previewed and tested on localhost. Production browser or physical-device access is not claimed verified.",
+    "Sites packaging on Windows uses Git Bash in process PATH and TAR_OPTIONS=--force-local. Credentials are passed through hidden stdin and are not stored."
+  ]
+}

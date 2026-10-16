@@ -22,6 +22,7 @@ export class BattleUI{
     root.innerHTML='<div id="menu"></div><div id="hud" hidden></div><div id="panel" hidden></div><div id="upgrade-banner" hidden></div><div id="announcement" hidden></div>';
     this.menu=root.querySelector('#menu');this.hud=root.querySelector('#hud');this.panel=root.querySelector('#panel');
     root.addEventListener('click',e=>{const button=e.target.closest('[data-action]');if(button&&!button.disabled)action(button.dataset.action,button.dataset.value);});
+    root.addEventListener('pointerdown',e=>{const button=e.target.closest('[data-action="bullet-time"]');if(button&&!button.disabled&&e.pointerType!=='mouse'){e.preventDefault();action('bullet-time');}});
     root.addEventListener('change',e=>{if(e.target.dataset.setting)action('setting',{key:e.target.dataset.setting,value:e.target.type==='checkbox'?e.target.checked:e.target.value});});
     root.addEventListener('keydown',e=>{
       if(e.key!=='Tab'||!this.modal)return;
@@ -54,7 +55,7 @@ export class BattleUI{
     this.root.querySelector('#upgrade-banner').hidden=true;this.root.querySelector('#announcement').hidden=true;
     const title=t('Riftbound').split(/[:：]/);
     const home=ROUTES[this.profile.route]||ROUTES.harbor,playstyle=HOME_PLAYSTYLES[this.profile.route]||HOME_PLAYSTYLES.harbor;
-    this.menu.innerHTML=`<header class="menu-top"><div class="brand">${icon('mouth')}<span>RIFTBOUND</span></div><div class="offline"><i></i>${tr('Offline edition')} · V7</div></header>
+    this.menu.innerHTML=`<header class="menu-top"><div class="brand">${icon('mouth')}<span>RIFTBOUND</span></div><div class="offline"><i></i>${document.documentElement.dataset.edition==='mobile-web'?tr('Mobile web edition'):tr('Offline edition')} · V7</div></header>
       <section class="menu-copy"><div class="eyebrow">${tr('Region I · Bellwind Meadow')}</div><h1><span>${escapeHtml(title[0])}</span>${title[1]?`<span>${escapeHtml(title[1])}</span>`:''}</h1><p class="subtitle">${tr('A city with an endless appetite.')}</p><p class="intro">${tr('Ten minutes to forge your build, then face the king.')}</p>
       <button class="home-selector" data-action="homes">${icon(home.icon)}<span><small>${tr('Traveling home')} · ${tr(playstyle.style)}</small><strong>${tr(playstyle.title)}</strong></span><b>${tr('Compare')} ›</b></button><button class="main-button" data-action="start">${icon('play')}<span>${tr('Begin expedition')}</span>${icon('arrow')}</button><div class="menu-actions"><button data-action="guide">${icon('book')}${tr('Combat manual')}</button><button data-action="garage">${icon('gear')}${tr('Workshop')}</button><button data-action="settings">${icon('gear')}${tr('Settings')}</button></div></section>
       <footer class="menu-bottom"><span>${tr('Move. Dodge. Devour. Evolve.')}</span><span>${this.profile.best?`${tr('Best score')} <b>${this.profile.best.toLocaleString()}</b>`:tr('The hollow kingdom is waking.')}</span></footer>`;

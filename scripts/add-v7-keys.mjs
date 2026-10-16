@@ -1,5 +1,6 @@
 // New battle forms and encounter vocabulary. The shared generator writes all locales.
 const rows=[
+['Mobile web edition','手机试玩','Version mobile','モバイル版','Мобильная версия','Bản di động'],
 ['Legion rally','军团集结','Ralliement','軍団集結','Сбор дружины','Quân đoàn tập hợp'],
 ['Captain deployed','统领出阵','Capitaine déployé','隊長出陣','Капитан в бою','Đội trưởng xuất trận'],
 ['Worldroot bloom','全园绽放','Floraison totale','全庭開花','Цветение всех садов','Toàn vườn nở rộ'],
